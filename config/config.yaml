@@ -1,0 +1,382 @@
+# =============================================================================
+# Wind Turbine Acoustic Monitoring -- Centralized Configuration
+# =============================================================================
+# Single source of truth for every hyperparameter in the project.
+# Each value documents WHY it was chosen (engineering + research rationale).
+#
+# Code dataclass mapping:
+#   audio              -> src/preprocessing/audio_loader.py    (AudioConfig)
+#   feature_extraction -> src/preprocessing/feature_extractor.py (FeatureConfig)
+#   augmentation       -> src/preprocessing/augmentation.py    (AugmentationConfig)
+#   denoising          -> src/preprocessing/denoiser.py        (DenoiserConfig)
+#   pipeline           -> src/preprocessing/pipeline.py        (PipelineConfig)
+#   evaluation         -> src/utils/metrics.py                 (MetricsConfig)
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# AUDIO -- loading and standardization (AudioConfig)
+# -----------------------------------------------------------------------------
+audio:
+  # 22.05 kHz captures content up to ~11 kHz (Nyquist), covering bearing
+  # resonances (3-5 kHz) and gear-mesh harmonics while halving the storage
+  # and compute cost of 44.1 kHz. Standard rate in acoustic ML literature.
+  sample_rate: 22050
+
+  # 10 s windows span multiple rotor revolutions at typical 0.2-0.5 Hz rotor
+  # speeds, so 1P modulation (blade imbalance) is observable several times
+  # per clip. Matches the dataset layout in README and synthetic generation.
+  duration: 10.0
+
+  # Fault signatures are not spatially encoded for a single nacelle
+  # microphone; mono halves memory and removes channel-imbalance variance.
+  mono: true
+
+  # Peak normalization removes recording-gain differences between datasets
+  # (CWRU vs MIMII vs field audio) so models learn spectral shape, not level.
+  normalize: true
+
+  # CWRU drive-end recordings are natively 12 kHz; needed to resample
+  # vibration .mat channels correctly into the audio pipeline.
+  cwru_native_sample_rate: 12000
+
+  # Formats the generic loader will ingest when traversing directories.
+  supported_extensions: [".wav", ".flac", ".ogg", ".mp3"]
+
+# -----------------------------------------------------------------------------
+# FEATURE EXTRACTION -- time-frequency representations (FeatureConfig)
+# -----------------------------------------------------------------------------
+feature_extraction:
+  # 2048-sample FFT @ 22.05 kHz = ~93 ms windows -> ~10.8 Hz frequency
+  # resolution. Resolves gear-mesh sidebands (tens of Hz apart) while
+  # keeping enough time resolution for impact transients.
+  n_fft: 2048
+
+  # 75% overlap (hop = n_fft/4) is the standard analysis tradeoff: smooth
+  # spectrogram trajectories without quadrupling the frame count.
+  hop_length: 512
+
+  # 128 mel bands is the de facto CNN-input resolution in audio ML
+  # (AudioSet, PANNs); finer banding adds compute without accuracy gains.
+  n_mels: 128
+
+  # 40 MFCCs retain enough cepstral detail for classical ML baselines
+  # (SVM/GBM) while staying compact; 13-20 is speech-centric, machine
+  # sounds benefit from the higher quefrency range.
+  n_mfcc: 40
+
+  # 20 Hz lower bound: discards sub-audible rumble dominated by 1/f^2 wind
+  # noise that carries little discriminative fault content post-denoising.
+  fmin: 20.0
+
+  # null -> Nyquist (sample_rate / 2). Keep the full analyzed band; mel
+  # spacing already de-emphasizes the extreme highs.
+  fmax: null
+
+  # 84 bins at 12 bins/octave = 7 octaves from fmin (20 Hz -> ~2.5 kHz),
+  # exactly the band where harmonic fault ladders (gear mesh + sidebands)
+  # live. Log-frequency axis makes harmonic stacks translation-invariant,
+  # which CNNs exploit.
+  cqt_bins: 84
+  cqt_bins_per_octave: 12
+
+  # Numerical stability epsilon before log compression; prevents -inf dB
+  # on silent frames without measurably biasing loud frames.
+  log_offset: 1.0e-10
+
+# -----------------------------------------------------------------------------
+# AUGMENTATION -- WindNoiseGenerator + robustness transforms (AugmentationConfig)
+# -----------------------------------------------------------------------------
+augmentation:
+  # 5-25 dB spans 'barely audible fault in strong wind' to 'clearly audible
+  # fault'; the paper's robustness-vs-SNR curves sweep this exact range.
+  snr_range_db: [5.0, 25.0]
+
+  # 2-15 m/s covers cut-in (~3 m/s) to rated wind speed (~12-15 m/s) of
+  # typical utility turbines -- the operational envelope we must monitor in.
+  wind_speed_range: [2.0, 15.0]
+
+  # Atmospheric gust energy concentrates below ~2 Hz (van der Hoven
+  # spectrum); 0.1 Hz floor keeps envelopes dynamic within a 10 s clip.
+  gust_frequency_range_hz: [0.1, 2.0]
+
+  # 30-80% modulation depth reproduces observed gust loudness swings
+  # without fully gating the noise to silence (depth < 1).
+  gust_depth_range: [0.3, 0.8]
+
+  # Micro-scale turbulence interacting with the microphone/structure is
+  # band-limited mid-frequency hiss; 200-2000 Hz overlaps the band where
+  # it most plausibly masks gear-mesh tones (worst-case for the model).
+  turbulence_band_hz: [200.0, 2000.0]
+
+  # Turbulence-to-base mix at max wind speed; calibrated so the 1/f^2 base
+  # still dominates overall power (turbulence is a perturbation, not the bulk).
+  turbulence_intensity: 0.35
+
+  # +/-1 s circular shift teaches the model phase invariance: fault onset
+  # position within a clip is arbitrary in deployment.
+  max_time_shift_seconds: 1.0
+
+  # +/-~3 dB gain jitter simulates microphone aging and distance drift
+  # without breaking the peak-normalization contract (clipped at 1.0).
+  amplitude_scale_range: [0.6, 1.4]
+
+  # Light sensor self-noise (20-40 dB SNR): present in every real ADC
+  # chain, mild enough not to confound the wind-noise robustness study.
+  gaussian_snr_range_db: [20.0, 40.0]
+
+  # 20-200 m spans nacelle-adjacent to ground-level perimeter microphones;
+  # drives both 1/d attenuation and atmospheric high-frequency absorption.
+  distance_range_m: [20.0, 200.0]
+  reference_distance_m: 20.0
+
+  # 3 variants triples the effective dataset; beyond ~3x, augmented copies
+  # of small datasets add correlation faster than information.
+  variants_per_clip: 3
+
+  # Global seed: every augmented dataset is exactly reproducible for the
+  # paper. Change deliberately, never implicitly.
+  random_seed: 42
+
+# -----------------------------------------------------------------------------
+# DENOISING -- classical baseline algorithms (DenoiserConfig)
+# -----------------------------------------------------------------------------
+denoising:
+  # Default algorithm for the pipeline: best SNR-vs-cost tradeoff of the
+  # classical set and the canonical literature baseline (Boll, 1979).
+  default_method: spectral_subtraction
+
+  # Over-subtraction factor 2.0: standard remedy for noise-estimate
+  # variance; subtracts twice the mean noise magnitude to suppress
+  # residual musical noise at a small cost in signal energy.
+  spectral_subtraction_alpha: 2.0
+
+  # Keep >= 5% of the noisy magnitude as a floor: fully zeroed bins create
+  # the perceptually-worse 'musical noise' artifact and harm downstream
+  # mel features more than residual broadband noise does.
+  spectral_floor: 0.05
+
+  # ~1.3 ms Wiener window @ 22.05 kHz: short enough to NOT smooth away
+  # bearing impact transients (a few ms long), the signature we must keep.
+  wiener_window_size: 29
+
+  # db8: 8-vanishing-moment Daubechies wavelet -- smooth enough to model
+  # tonal content, compact enough to localize impacts. db4/sym8 are the
+  # validated alternatives for the ablation study.
+  wavelet_name: db8
+
+  # 5 decomposition levels @ 22.05 kHz puts the coarsest band below
+  # ~345 Hz, isolating the wind-dominated low band from fault bands.
+  wavelet_level: 5
+
+  # Wind noise is gusty (non-stationary); the time-varying estimate of
+  # noisereduce matches reality better than a single global profile.
+  noise_reduce_stationary: false
+
+  # 90% reduction, not 100%: full suppression audibly distorts tonal fault
+  # content; retaining 10% is a conservative signature-preservation margin.
+  noise_reduce_prop_decrease: 0.9
+
+  # STFT geometry mirrors feature_extraction so denoised spectra align
+  # frame-for-frame with extracted features.
+  n_fft: 2048
+  hop_length: 512
+
+  # First 0.5 s assumed noise-dominated for the noise-profile estimate:
+  # faults are continuous, so the assumption is conservative and the
+  # 0.5 s ~= 21 frames give a stable mean estimate.
+  noise_estimate_seconds: 0.5
+
+  # Blind SNR estimation treats the quietest 10% of frames as noise floor:
+  # robust to clips where faults are active most of the time.
+  snr_noise_frame_fraction: 0.1
+
+  # Debugging aids; disabled in production runs to save memory.
+  save_intermediate_results: false
+  enable_logging: true
+
+# -----------------------------------------------------------------------------
+# PIPELINE -- end-to-end orchestration (PipelineConfig)
+# -----------------------------------------------------------------------------
+pipeline:
+  # Default dataset roots; override per-run via CLI flags.
+  input_dir: data/raw/synthetic
+  output_dir: data/processed
+
+  # Persist features (mel/mfcc/cqt/spectral + metadata.json) -- training
+  # reads these tensors, never raw audio, for reproducibility and speed.
+  save_features: true
+
+  # Augmented waveforms are recomputable from (seed, config); storing them
+  # wastes disk. Enable only when auditing augmentation by ear.
+  save_augmented_audio: false
+
+  # Denoise-before-features is the project's default signal path; disable
+  # for the 'no-denoising' ablation arm of the paper.
+  enable_denoising: true
+  enable_augmentation: true
+
+  # Mirrors augmentation.variants_per_clip (kept here because the pipeline
+  # owns dataset-level expansion factors).
+  n_augmentations_per_clip: 3
+
+  # 4 worker threads: librosa/NumPy FFTs release the GIL, so threads give
+  # near-linear speedup up to memory-bandwidth limits on typical 4-8 core
+  # machines without multiprocessing serialization overhead.
+  max_workers: 4
+
+  # Loader registry key: generic | synthetic | mimii | cwru | windturbine.
+  loader_name: synthetic
+
+  # Must be a member of denoising.default_method's algorithm set.
+  denoise_method: spectral_subtraction
+
+  random_seed: 42
+
+# -----------------------------------------------------------------------------
+# TRAINING -- model training defaults (consumed by src/training, Week 4+)
+# -----------------------------------------------------------------------------
+training:
+  # 32 fits 128x431 mel batches comfortably in 8 GB GPU memory and is the
+  # well-studied small-batch sweet spot for generalization.
+  batch_size: 32
+
+  # Upper bound only -- early stopping below terminates first in practice.
+  epochs: 100
+
+  # 1e-3 with Adam: robust default for spectrogram CNNs; cosine decay
+  # avoids hand-tuned step schedules.
+  learning_rate: 1.0e-3
+  optimizer: adam
+  weight_decay: 1.0e-4          # mild L2; augmentation provides most regularization
+  scheduler: cosine
+
+  # Stop after 10 stagnant epochs on val F1 -- macro F1 (not accuracy)
+  # because fault classes may be imbalanced against 'normal'.
+  early_stopping_patience: 10
+  early_stopping_metric: val_f1_macro
+
+  # 70/15/15 split, stratified by class AND grouped by source recording so
+  # chunks of one recording never leak across splits (key validity threat
+  # in acoustic ML).
+  train_split: 0.70
+  val_split: 0.15
+  test_split: 0.15
+  stratify: true
+  group_by_source: true
+
+  device: auto                  # cuda if available, else cpu
+  num_dataloader_workers: 4
+  random_seed: 42
+
+  # MLflow experiment tracking (mlflow is in requirements.txt).
+  mlflow:
+    enabled: true
+    tracking_uri: mlruns
+    experiment_name: wind-turbine-acoustics
+
+# -----------------------------------------------------------------------------
+# EVALUATION -- metrics protocol (MetricsConfig)
+# -----------------------------------------------------------------------------
+evaluation:
+  # Canonical label order: index == integer label everywhere in the project.
+  class_names:
+    - normal
+    - blade_imbalance
+    - bearing_fault
+    - gearbox_fault
+    - electrical_fault
+
+  # 1000 bootstrap resamples: percentile-CI standard error is acceptable
+  # at n=1000 and the computation stays under seconds for our test sizes.
+  bootstrap_iterations: 1000
+
+  # 95% two-sided intervals: reviewer-expected default for paper tables.
+  confidence_level: 0.95
+
+  # Report 0.0 (not error) when precision/recall is undefined for a class
+  # with no predictions -- keeps batch evaluation crash-free.
+  zero_division: 0.0
+
+  random_seed: 42
+
+  # Report artifacts written next to processed data.
+  export:
+    json_report: data/processed/evaluation/evaluation_report.json
+    csv_per_class: data/processed/evaluation/per_class_metrics.csv
+    table_formats: [markdown, latex]
+
+  # Figure export (VisualizationConfig): 300 DPI satisfies print
+  # publication requirements; PDF/SVG available for vector camera-ready.
+  figures:
+    dpi: 300
+    figure_size: [10.0, 6.0]
+    save_format: png
+    output_dir: docs/figures
+    paper_dir: paper/figures
+    style: whitegrid
+    font_scale: 1.2
+
+# -----------------------------------------------------------------------------
+# DEPLOYMENT -- inference service defaults (consumed by src/inference)
+# -----------------------------------------------------------------------------
+deployment:
+  api:
+    host: 0.0.0.0               # bind all interfaces inside the container
+    port: 8000
+    workers: 2                  # uvicorn workers; inference is GPU/CPU bound, not IO
+  model:
+    checkpoint_path: data/processed/models/classifier_best.pt
+    onnx_export_path: data/processed/models/classifier.onnx
+    # Quantized ONNX targets on-nacelle edge hardware (roadmap item).
+    quantize_for_edge: false
+  # Reject clips that deviate from the training contract instead of
+  # silently producing garbage predictions.
+  input_validation:
+    expected_sample_rate: 22050
+    expected_duration: 10.0
+  # 500 ms budget per clip keeps a 12-turbine farm monitorable from one node.
+  max_inference_latency_ms: 500
+
+# -----------------------------------------------------------------------------
+# MONITORING -- alerting thresholds (consumed by src/inference dashboard)
+# -----------------------------------------------------------------------------
+monitoring:
+  # Alert when fault probability exceeds 0.8 for sustained windows --
+  # tuned for low false-alarm rate; maintenance call-outs are expensive.
+  fault_probability_threshold: 0.8
+
+  # Require 3 consecutive positive windows (30 s at 10 s clips) before
+  # alerting: single-window spikes are usually gust artifacts.
+  consecutive_windows_required: 3
+
+  # Anomaly-detector reconstruction error gate (z-score vs healthy baseline).
+  anomaly_zscore_threshold: 3.0
+
+  # Operational target the system is evaluated against (see metrics.MTTD).
+  mttd_target_seconds: 60.0
+
+  # Dashboard refresh matches the clip cadence -- faster adds no information.
+  dashboard_refresh_seconds: 10
+
+  alerts:
+    enabled: true
+    channels: [log, webhook]
+    webhook_url: ""             # set via environment/secret in deployment
+
+# -----------------------------------------------------------------------------
+# LOGGING -- project-wide logging defaults
+# -----------------------------------------------------------------------------
+logging:
+  # INFO in production: per-clip progress without per-frame debug spam.
+  level: INFO
+
+  # Matches the format used by every module's __main__ block.
+  format: "%(asctime)s | %(levelname)-8s | %(name)s | %(message)s"
+  datefmt: "%H:%M:%S"
+
+  # Rotating file handler keeps long monitoring runs bounded on disk.
+  file:
+    enabled: false              # stdout-only by default (container-friendly)
+    path: logs/pipeline.log
+    max_bytes: 10485760         # 10 MB per file
+    backup_count: 5
