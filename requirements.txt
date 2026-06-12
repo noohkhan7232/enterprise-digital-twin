@@ -1,25 +1,37 @@
-# Core scientific stack
+# ===== Core scientific stack =====
 numpy
-scipy
 pandas
+scipy
 
-# Audio processing
+# ===== Visualization =====
+matplotlib
+seaborn
+
+# ===== Audio processing =====
 librosa
 soundfile
+pywavelets
+noisereduce
+audiomentations
 
-# Machine learning
+# ===== Machine learning =====
 scikit-learn
 torch
 torchaudio
 
-# Visualization
-matplotlib
-seaborn
+# ===== Experiment tracking =====
+mlflow
 
-# Experiment tooling
-jupyter
+# ===== Model interpretability =====
+captum
+shap
+
+# ===== API & serving =====
+fastapi
+uvicorn
+
+# ===== Configuration =====
 pyyaml
-tqdm
 
-# Testing
+# ===== Testing =====
 pytest
