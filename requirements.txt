@@ -1,0 +1,25 @@
+# Core scientific stack
+numpy
+scipy
+pandas
+
+# Audio processing
+librosa
+soundfile
+
+# Machine learning
+scikit-learn
+torch
+torchaudio
+
+# Visualization
+matplotlib
+seaborn
+
+# Experiment tooling
+jupyter
+pyyaml
+tqdm
+
+# Testing
+pytest

@@ -1,0 +1,48 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+build/
+dist/
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Data files (keep folder structure, ignore contents)
+data/raw/*
+data/processed/*
+data/augmented/*
+!data/raw/.gitkeep
+!data/processed/.gitkeep
+!data/augmented/.gitkeep
+
+# Audio files
+*.wav
+*.flac
+*.mp3
+
+# Model artifacts
+*.pt
+*.pth
+*.ckpt
+*.onnx
+
+# Logs and outputs
+logs/
+runs/
+wandb/
+mlruns/
+
+# OS / editor
+.DS_Store
+.idea/
+.vscode/
+
+# Environment secrets
+.env
