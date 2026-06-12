@@ -13,12 +13,20 @@ from src.preprocessing.audio_loader import (
     CWRULoader,
     MIMIILoader,
 )
+from src.preprocessing.feature_extractor import (
+    SPECTRAL_STATISTIC_NAMES,
+    FeatureConfig,
+    FeatureExtractor,
+)
 
 __all__ = [
     "FAULT_LABELS",
+    "SPECTRAL_STATISTIC_NAMES",
     "AudioClip",
     "AudioConfig",
     "AudioLoader",
     "CWRULoader",
+    "FeatureConfig",
+    "FeatureExtractor",
     "MIMIILoader",
 ]
