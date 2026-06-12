@@ -13,6 +13,11 @@ from src.preprocessing.audio_loader import (
     CWRULoader,
     MIMIILoader,
 )
+from src.preprocessing.augmentation import (
+    AugmentationConfig,
+    AugmentationPipeline,
+    WindNoiseGenerator,
+)
 from src.preprocessing.feature_extractor import (
     SPECTRAL_STATISTIC_NAMES,
     FeatureConfig,
@@ -25,8 +30,11 @@ __all__ = [
     "AudioClip",
     "AudioConfig",
     "AudioLoader",
+    "AugmentationConfig",
+    "AugmentationPipeline",
     "CWRULoader",
     "FeatureConfig",
     "FeatureExtractor",
     "MIMIILoader",
+    "WindNoiseGenerator",
 ]
