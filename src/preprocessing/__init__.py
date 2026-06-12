@@ -29,6 +29,7 @@ from src.preprocessing.feature_extractor import (
     FeatureConfig,
     FeatureExtractor,
 )
+from src.preprocessing.pipeline import PipelineConfig, PreprocessingPipeline
 
 __all__ = [
     "FAULT_LABELS",
@@ -46,5 +47,7 @@ __all__ = [
     "FeatureConfig",
     "FeatureExtractor",
     "MIMIILoader",
+    "PipelineConfig",
+    "PreprocessingPipeline",
     "WindNoiseGenerator",
 ]
