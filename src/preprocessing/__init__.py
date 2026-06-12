@@ -18,6 +18,12 @@ from src.preprocessing.augmentation import (
     AugmentationPipeline,
     WindNoiseGenerator,
 )
+from src.preprocessing.denoiser import (
+    SUPPORTED_METHODS,
+    SUPPORTED_WAVELETS,
+    Denoiser,
+    DenoiserConfig,
+)
 from src.preprocessing.feature_extractor import (
     SPECTRAL_STATISTIC_NAMES,
     FeatureConfig,
@@ -27,12 +33,16 @@ from src.preprocessing.feature_extractor import (
 __all__ = [
     "FAULT_LABELS",
     "SPECTRAL_STATISTIC_NAMES",
+    "SUPPORTED_METHODS",
+    "SUPPORTED_WAVELETS",
     "AudioClip",
     "AudioConfig",
     "AudioLoader",
     "AugmentationConfig",
     "AugmentationPipeline",
     "CWRULoader",
+    "Denoiser",
+    "DenoiserConfig",
     "FeatureConfig",
     "FeatureExtractor",
     "MIMIILoader",

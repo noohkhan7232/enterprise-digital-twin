@@ -585,8 +585,6 @@ def main(argv: list[str] | None = None) -> int:
     except ImportError:
         logger.warning("Augmentation module unavailable; using shaped noise fallback")
         wind = rng.standard_normal(num_samples).astype(np.float32)
-    noisy = WindNoiseGeneratorMix = None  # placeholder to satisfy linters
-    del WindNoiseGeneratorMix
     noise_power = float(np.mean(wind**2))
     signal_power = float(np.mean(clean**2))
     wind = wind * np.sqrt(signal_power / (noise_power * 10.0 ** (args.snr / 10.0)))
