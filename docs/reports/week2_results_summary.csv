@@ -1,0 +1,15 @@
+study,config,key_param,metric_primary,value_primary,metric_secondary,value_secondary,metric_tertiary,value_tertiary,is_recommended,notes
+Denoising Benchmark,Spec. Subtraction,method=spectral_subtraction,snr_improvement_db,2.7884,processing_time_s,0.08881,energy_preservation,0.91054,False,
+Denoising Benchmark,Wiener Filter,method=wiener,snr_improvement_db,2.1324,processing_time_s,0.04524,energy_preservation,0.87473,False,
+Denoising Benchmark,Wavelet Denoising,method=wavelet,snr_improvement_db,3.1107,processing_time_s,0.12222,energy_preservation,0.88533,True,Best method: +3.11 dB avg gain
+Denoising Benchmark,Noisereduce,method=noisereduce,snr_improvement_db,2.4835,processing_time_s,0.18589,energy_preservation,0.89787,False,
+Feature Engineering,Mel-128,stack=Mel-128,composite_score,0.88,silhouette,0.52,memory_kb,215.5,True,Best feature stack
+Feature Engineering,CQT-24bpo,stack=CQT-24bpo,composite_score,0.79,silhouette,0.48,memory_kb,282.84,False,
+Feature Engineering,Mel-256,stack=Mel-256,composite_score,0.75,silhouette,0.47,memory_kb,431.0,False,
+Feature Engineering,CQT-36bpo,stack=CQT-36bpo,composite_score,0.72,silhouette,0.44,memory_kb,424.27,False,
+Feature Engineering,MFCC-40,stack=MFCC-40,composite_score,0.62,silhouette,0.42,memory_kb,67.34,False,
+Feature Engineering,CQT-12bpo,stack=CQT-12bpo,composite_score,0.61,silhouette,0.39,memory_kb,141.42,False,
+Feature Engineering,MFCC-80,stack=MFCC-80,composite_score,0.58,silhouette,0.38,memory_kb,134.69,False,
+Feature Engineering,MFCC-20,stack=MFCC-20,composite_score,0.48,silhouette,0.36,memory_kb,33.67,False,
+Feature Engineering,Mel-64,stack=Mel-64,composite_score,0.44,silhouette,0.31,memory_kb,107.75,False,
+Feature Engineering,MFCC-13,stack=MFCC-13,composite_score,0.32,silhouette,0.28,memory_kb,21.89,False,
