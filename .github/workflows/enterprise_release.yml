@@ -1,0 +1,99 @@
+name: Enterprise Release
+
+on:
+  push:
+    tags: ["v*.*.*"]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Release version (semver)"
+        required: true
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    name: Enterprise Release Pipeline
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Python Setup
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install
+        run: |
+          python -m pip install --upgrade pip
+          pip install numpy pyyaml pytest pytest-cov
+
+      - name: Resolve Version
+        id: version
+        run: |
+          if [ -n "${{ github.event.inputs.version }}" ]; then
+            echo "version=${{ github.event.inputs.version }}" >> "$GITHUB_OUTPUT"
+          else
+            echo "version=${GITHUB_REF_NAME#v}" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Version Validation
+        run: |
+          python -c "import sys; sys.path.insert(0,'scripts'); from release_validator import SemanticVersion as V; assert V.is_valid('${{ steps.version.outputs.version }}'), 'invalid version'"
+
+      - name: Tests
+        env:
+          PYTHONPATH: src:scripts
+        run: |
+          pytest tests/ -q --cov=src --cov=scripts --cov-report=xml --junitxml=pytest_report.xml
+          python - <<'PY'
+          import xml.etree.ElementTree as ET
+          rate = float(ET.parse("coverage.xml").getroot().get("line-rate", "0"))
+          open("coverage_value.txt", "w").write(f"{rate:.4f}")
+          PY
+
+      - name: Release Validation
+        run: |
+          COV=$(cat coverage_value.txt)
+          python scripts/release_validator.py --root . \
+            --version "${{ steps.version.outputs.version }}" \
+            --notes "Automated release ${{ steps.version.outputs.version }}" \
+            --coverage "$COV" \
+            --output release_report.json
+
+      - name: Documentation Validation
+        run: |
+          test -d docs && ls docs/*.md
+
+      - name: Deployment Readiness
+        run: |
+          python scripts/deployment_readiness.py --root . --output deployment_report.json
+
+      - name: Artifact Packaging
+        run: |
+          mkdir -p dist
+          tar --exclude='./dist' --exclude='./.git' -czf "dist/release-${{ steps.version.outputs.version }}.tar.gz" .
+
+      - name: Release Summary
+        if: always()
+        run: |
+          echo "## Release ${{ steps.version.outputs.version }}" >> "$GITHUB_STEP_SUMMARY"
+          python - <<'PY' >> "$GITHUB_STEP_SUMMARY"
+          import json, os
+          for label, path in [("Release", "release_report.json"), ("Deployment", "deployment_report.json")]:
+              if os.path.exists(path):
+                  d = json.load(open(path))
+                  print(f"- **{label}**: {d.get('verdict') or d.get('overall_status')} ({d.get('score') or d.get('readiness_percentage')})")
+          PY
+
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-${{ steps.version.outputs.version }}
+          path: |
+            dist/*.tar.gz
+            release_report.json
+            deployment_report.json

@@ -1,0 +1,47 @@
+# Enterprise Quality Gate configuration.
+# Thresholds and weights consumed by scripts/quality_gate.py. All values are
+# deterministic policy inputs; measured values (coverage, test results) are
+# supplied by the CI workflow and validated against these thresholds.
+
+version: "11.3.0"
+
+thresholds:
+  coverage: 0.85            # minimum line coverage fraction
+  complexity: 15            # maximum acceptable cyclomatic complexity
+  documentation: 0.60       # minimum public-API docstring coverage
+  type_hints: 0.70          # minimum type-hint coverage
+  naming: 0.90              # minimum naming-convention conformance
+  quality_score: 80.0       # minimum overall quality score (0-100) to pass
+  monitoring: 1.0           # monitoring integration must be present
+  mlops: 1.0                # mlops integration must be present
+  deployment: 0.70          # minimum deployment readiness fraction
+
+weights:
+  repository_structure: 1.0
+  python_syntax: 2.0
+  import_validation: 1.0
+  type_hint_coverage: 1.0
+  documentation_coverage: 1.0
+  test_discovery: 1.5
+  pytest_execution: 2.0
+  coverage_threshold: 2.0
+  code_complexity: 1.0
+  dependency_validation: 1.0
+  configuration_validation: 1.0
+  package_integrity: 1.5
+  architecture_consistency: 1.0
+  naming_convention: 1.0
+  json_serialization: 1.0
+  thread_safety: 1.0
+  deterministic_behaviour: 1.0
+  mlops_integration: 1.5
+  monitoring_integration: 1.5
+  deployment_readiness: 1.0
+
+required_packages:
+  - mlops
+  - monitoring
+
+required_configs:
+  - configs/quality_gate.yaml
+  - configs/release_policy.yaml

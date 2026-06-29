@@ -1,0 +1,104 @@
+name: Enterprise CI
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+    branches: ["**"]
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+concurrency:
+  group: enterprise-ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    name: Enterprise Validation Pipeline
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Python Setup
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Dependency Install
+        run: |
+          python -m pip install --upgrade pip
+          pip install numpy pyyaml pytest pytest-cov
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+
+      - name: Static Validation
+        run: |
+          python -m compileall -q src scripts
+
+      - name: Repository Validation
+        run: |
+          python scripts/validate_repository.py --root . --output repository_report.json
+
+      - name: Pytest
+        env:
+          PYTHONPATH: src:scripts
+        run: |
+          pytest tests/ -q --cov=src --cov=scripts --cov-report=xml --cov-report=term --junitxml=pytest_report.xml
+
+      - name: Coverage
+        run: |
+          python - <<'PY'
+          import xml.etree.ElementTree as ET
+          rate = float(ET.parse("coverage.xml").getroot().get("line-rate", "0"))
+          print(f"coverage={rate:.4f}")
+          open("coverage_value.txt", "w").write(f"{rate:.4f}")
+          PY
+
+      - name: Quality Gate
+        run: |
+          COV=$(cat coverage_value.txt)
+          python scripts/quality_gate.py --root . --coverage "$COV" --output quality_report.json
+
+      - name: Monitoring Validation
+        env:
+          PYTHONPATH: src
+        run: |
+          python -c "import monitoring; print('monitoring', monitoring.__version__)"
+          python src/monitoring/prediction_monitor.py --demo --quiet
+
+      - name: MLOps Validation
+        env:
+          PYTHONPATH: src
+        run: |
+          python -c "import mlops; print('mlops', mlops.__version__)"
+          python src/mlops/experiment_tracker.py --demo --quiet
+
+      - name: Build Validation
+        run: |
+          python scripts/deployment_readiness.py --root . --output deployment_report.json
+
+      - name: Summary
+        if: always()
+        run: |
+          echo "## Enterprise CI Summary" >> "$GITHUB_STEP_SUMMARY"
+          python - <<'PY' >> "$GITHUB_STEP_SUMMARY"
+          import json, os
+          for label, path in [("Repository", "repository_report.json"),
+                              ("Quality Gate", "quality_report.json"),
+                              ("Deployment", "deployment_report.json")]:
+              if os.path.exists(path):
+                  data = json.load(open(path))
+                  status = data.get("verdict") or data.get("overall_status") or data.get("report", {}).get("overall_status")
+                  score = data.get("score") or data.get("quality_score") or data.get("readiness_percentage")
+                  print(f"- **{label}**: {status} (score: {score})")
+          PY
+
+      - name: Upload Reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: validation-reports
+          path: "*_report.json"

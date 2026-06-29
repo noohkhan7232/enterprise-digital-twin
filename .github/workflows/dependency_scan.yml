@@ -1,0 +1,68 @@
+name: Dependency Scan
+
+on:
+  push:
+    paths:
+      - "requirements*.txt"
+      - "pyproject.toml"
+      - ".github/workflows/dependency_scan.yml"
+  pull_request: {}
+  schedule:
+    - cron: "0 6 * * 1"
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+jobs:
+  scan:
+    name: Dependency Consistency Scan
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Python Setup
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Dependency Consistency, Conflicts, Duplicates, Unused
+        run: |
+          python - <<'PY'
+          import os, re, sys
+          report = {"manifests": [], "duplicates": [], "conflicts": [], "unsafe": [], "unused": []}
+          unsafe = {"pickle5", "telnetlib", "left-pad"}
+          path = "requirements.txt"
+          seen = {}
+          if os.path.exists(path):
+              report["manifests"].append(path)
+              for raw in open(path):
+                  line = raw.split("#", 1)[0].strip()
+                  if not line or line.startswith("-"):
+                      continue
+                  name = re.split(r"[=<>~!]", line, 1)[0].strip().lower()
+                  ver = line[len(name):]
+                  if name in unsafe:
+                      report["unsafe"].append(name)
+                  if name in seen:
+                      report["duplicates"].append(name)
+                      if seen[name] != ver:
+                          report["conflicts"].append(name)
+                  seen[name] = ver
+          # Unused: declared but never imported anywhere in src/scripts.
+          declared = set(seen)
+          used = set()
+          for base in ("src", "scripts"):
+              for dp, _, fs in os.walk(base):
+                  for f in fs:
+                      if f.endswith(".py"):
+                          for m in re.findall(r"^\s*(?:import|from)\s+([a-zA-Z0-9_]+)",
+                                              open(os.path.join(dp, f)).read(), re.M):
+                              used.add(m.lower())
+          report["unused"] = sorted(declared - used - {"pytest", "pytest-cov"})
+          print(report)
+          if report["conflicts"] or report["unsafe"]:
+              sys.exit(1)
+          PY

@@ -1,0 +1,44 @@
+# Enterprise Release Policy.
+# Consumed by scripts/release_validator.py and scripts/deployment_readiness.py.
+
+version: "11.3.0"
+
+release_strategy:
+  type: "progressive"        # progressive | blue-green | canary | all-at-once
+  canary_percent: 10
+  bake_time_minutes: 30
+  auto_promote: false
+
+version_policy:
+  scheme: "semver"
+  allow_prerelease: false    # prereleases may not be promoted to production
+  allow_build_metadata: true
+  require_tag_match: true     # git tag must equal the declared version
+
+rollback_policy:
+  enabled: true
+  automatic_on_failure: true
+  max_rollback_window_minutes: 60
+  retain_previous_versions: 3
+
+approval_policy:
+  required_approvals: 2
+  require_code_owner: true
+  require_release_manager: true
+  block_on_open_incidents: true
+
+validation_policy:
+  require_tests_pass: true
+  min_coverage: 0.85
+  require_documentation: true
+  require_clean_working_tree: true
+  require_changelog: true
+  min_quality_score: 80.0
+  required_files:
+    - configs/quality_gate.yaml
+    - configs/release_policy.yaml
+  required_directories:
+    - src
+    - tests
+    - docs
+    - .github/workflows
