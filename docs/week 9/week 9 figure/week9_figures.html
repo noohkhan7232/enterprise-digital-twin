@@ -1,0 +1,1186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Week 9 — Enterprise Digital Twin & Decision Intelligence Platform</title>
+<style>
+  :root {
+    --bg: #f4f3ef;
+    --surface: #ffffff;
+    --surface2: #f9f8f5;
+    --border: rgba(11,11,11,0.10);
+    --border-strong: rgba(11,11,11,0.18);
+    --text-primary: #0b0b0b;
+    --text-secondary: #52514e;
+    --text-muted: #898781;
+    --accent: #2a78d6;
+    --accent-bg: #e6f1fb;
+    --accent-text: #0c447c;
+    --purple: #534ab7;
+    --purple-bg: #eeedfe;
+    --purple-text: #3c3489;
+    --teal: #1d9e75;
+    --teal-bg: #e1f5ee;
+    --teal-text: #085041;
+    --coral: #d85a30;
+    --coral-bg: #faece7;
+    --coral-text: #712b13;
+    --amber: #ba7517;
+    --amber-bg: #faeeda;
+    --amber-text: #633806;
+    --radius: 8px;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #111110;
+      --surface: #1a1a19;
+      --surface2: #222221;
+      --border: rgba(255,255,255,0.10);
+      --border-strong: rgba(255,255,255,0.18);
+      --text-primary: #f0efe8;
+      --text-secondary: #c3c2b7;
+      --text-muted: #898781;
+      --accent: #3987e5;
+      --accent-bg: #042c53;
+      --accent-text: #b5d4f4;
+      --purple: #9085e9;
+      --purple-bg: #26215c;
+      --purple-text: #cecbf6;
+      --teal: #1d9e75;
+      --teal-bg: #04342c;
+      --teal-text: #9fe1cb;
+      --coral: #d85a30;
+      --coral-bg: #4a1b0c;
+      --coral-text: #f0997b;
+      --amber: #ef9f27;
+      --amber-bg: #412402;
+      --amber-text: #fac775;
+    }
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    background: var(--bg);
+    color: var(--text-primary);
+    font-size: 14px;
+    line-height: 1.6;
+  }
+
+  /* Nav */
+  .nav {
+    position: sticky; top: 0; z-index: 100;
+    background: var(--surface);
+    border-bottom: 0.5px solid var(--border-strong);
+    padding: 0 24px;
+    display: flex; align-items: center; gap: 16px;
+    height: 52px;
+    overflow-x: auto;
+  }
+  .nav-logo {
+    font-size: 13px; font-weight: 500;
+    color: var(--text-muted);
+    white-space: nowrap;
+    padding-right: 16px;
+    border-right: 0.5px solid var(--border-strong);
+  }
+  .nav-tabs {
+    display: flex; gap: 4px;
+    overflow-x: auto;
+  }
+  .nav-tab {
+    padding: 6px 12px;
+    border-radius: var(--radius);
+    font-size: 12px;
+    cursor: pointer;
+    white-space: nowrap;
+    color: var(--text-secondary);
+    border: none; background: transparent;
+    transition: background 0.15s;
+  }
+  .nav-tab:hover { background: var(--accent-bg); color: var(--accent-text); }
+  .nav-tab.active { background: var(--accent-bg); color: var(--accent-text); font-weight: 500; }
+
+  /* Pages */
+  .page { display: none; padding: 40px 24px; max-width: 900px; margin: 0 auto; }
+  .page.active { display: block; }
+
+  /* Figure Card */
+  .fig-card {
+    background: var(--surface);
+    border: 0.5px solid var(--border-strong);
+    border-radius: 12px;
+    padding: 32px;
+    margin-bottom: 32px;
+  }
+  .fig-meta {
+    display: flex; align-items: flex-start; justify-content: space-between;
+    margin-bottom: 24px;
+    gap: 16px;
+  }
+  .fig-number {
+    font-size: 11px; font-weight: 500; letter-spacing: 0.06em;
+    color: var(--accent-text);
+    background: var(--accent-bg);
+    padding: 3px 10px; border-radius: 99px;
+    white-space: nowrap;
+  }
+  .fig-title {
+    font-size: 18px; font-weight: 500;
+    color: var(--text-primary);
+    flex: 1;
+  }
+  .fig-objective {
+    font-size: 13px;
+    color: var(--text-secondary);
+    margin-bottom: 24px;
+    padding-bottom: 16px;
+    border-bottom: 0.5px solid var(--border);
+  }
+  .fig-body { margin-bottom: 24px; }
+  .fig-interp {
+    background: var(--surface2);
+    border-left: 2px solid var(--accent);
+    padding: 12px 16px;
+    border-radius: 0 var(--radius) var(--radius) 0;
+    font-size: 12px;
+    color: var(--text-secondary);
+    margin-top: 20px;
+  }
+  .fig-interp strong { color: var(--text-primary); font-weight: 500; }
+
+  /* SVG shared */
+  svg { display: block; width: 100%; }
+
+  /* Grid helpers for some figs */
+  .metric-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 12px;
+    margin: 16px 0;
+  }
+  .metric-card {
+    background: var(--surface2);
+    border: 0.5px solid var(--border);
+    border-radius: var(--radius);
+    padding: 14px 16px;
+  }
+  .metric-label { font-size: 11px; color: var(--text-muted); margin-bottom: 4px; }
+  .metric-value { font-size: 22px; font-weight: 500; color: var(--text-primary); }
+  .metric-sub { font-size: 11px; color: var(--text-secondary); margin-top: 2px; }
+
+  /* Legend */
+  .legend {
+    display: flex; flex-wrap: wrap; gap: 12px;
+    margin: 12px 0 4px;
+    font-size: 12px; color: var(--text-secondary);
+  }
+  .legend-item { display: flex; align-items: center; gap: 6px; }
+  .legend-dot {
+    width: 10px; height: 10px;
+    border-radius: 2px;
+    flex-shrink: 0;
+  }
+
+  /* Heatmap cell */
+  .heatmap-wrap { overflow-x: auto; }
+  table.heatmap {
+    border-collapse: collapse;
+    width: 100%;
+    font-size: 12px;
+  }
+  table.heatmap th {
+    padding: 8px 10px;
+    text-align: left;
+    font-weight: 500;
+    color: var(--text-secondary);
+    border-bottom: 0.5px solid var(--border-strong);
+  }
+  table.heatmap td {
+    padding: 8px 10px;
+    border-bottom: 0.5px solid var(--border);
+    color: var(--text-primary);
+  }
+  .heat-cell {
+    display: flex; align-items: center; gap: 8px;
+  }
+  .heat-bar {
+    height: 14px; border-radius: 2px;
+    min-width: 4px;
+  }
+
+  /* Radar chart canvas */
+  .chart-wrap { position: relative; width: 100%; height: 340px; }
+
+  /* Citation graph styles */
+  .cg-node {
+    cursor: pointer;
+  }
+
+  /* Responsive */
+  @media (max-width: 600px) {
+    .fig-card { padding: 20px 16px; }
+    .nav { padding: 0 12px; }
+    .page { padding: 20px 12px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Navigation -->
+<nav class="nav">
+  <div class="nav-logo">Week 9 · Decision Intelligence</div>
+  <div class="nav-tabs" id="navTabs"></div>
+</nav>
+
+<!-- Pages will be injected -->
+<div id="pages"></div>
+
+<script>
+// ─────────────────────────────────────────────
+// DATA: figure specs
+// ─────────────────────────────────────────────
+const figures = [
+  {
+    num: 1, title: "Master Architecture Poster — Knowledge Intelligence Stack",
+    objective: "Present the complete Enterprise Digital Twin & Decision Intelligence Platform across all layers from raw data ingestion to executive decision output.",
+    interp: "This master view establishes the full system boundary. Executives see the platform as five interlocking zones; engineers see the precise handoff contracts between layers. Every subsequent figure zooms into one region of this poster.",
+    svg: `masterArch`
+  },
+  {
+    num: 2, title: "Knowledge Intelligence Layer",
+    objective: "Trace the vertical processing chain from the static Knowledge Base through to the Executive Copilot, illustrating information transformation at each stage.",
+    interp: "Five stages transform dormant documents into grounded executive intelligence. The handoff at each arrow represents a quality gate — retrieval quality determines response quality.",
+    svg: `knowledgeLayer`
+  },
+  {
+    num: 3, title: "Enterprise Knowledge Base Architecture",
+    objective: "Decompose the knowledge base into its six structural subsystems and show their interdependencies.",
+    interp: "The knowledge base is not a flat file store. Its six subsystems enforce data quality (Validation), discoverability (Registry, Metadata), and operational awareness (Statistics) before any document enters retrieval.",
+    svg: `kbArch`
+  },
+  {
+    num: 4, title: "Knowledge Document Lifecycle",
+    objective: "Map the complete state machine of a document from initial creation through archival, capturing every transition trigger.",
+    interp: "Documents are long-lived enterprise assets. The lifecycle diagram governs data retention policy, audit compliance, and retrieval freshness. Archival is not deletion — it signals a managed state change.",
+    svg: `docLifecycle`
+  },
+  {
+    num: 5, title: "Vector Embedding Pipeline",
+    objective: "Illustrate how raw documents are transformed into normalised vector representations ready for similarity search.",
+    interp: "Each stage reduces raw entropy: hashing collapses vocabulary; embedding projects to semantic geometry; normalization ensures cosine distance is meaningful. A broken pipeline at any stage silently degrades retrieval precision.",
+    svg: `vectorPipeline`
+  },
+  {
+    num: 6, title: "Vector Search Architecture",
+    objective: "Show the internal structure of the vector search engine from index to ranked result delivery.",
+    interp: "Approximate Nearest Neighbour search makes retrieval sub-linear in corpus size. The similarity engine is the performance bottleneck; hybrid search and ranking are the quality levers.",
+    svg: `vectorSearch`
+  },
+  {
+    num: 7, title: "Similarity Metrics Comparison",
+    objective: "Compare cosine, Euclidean, and dot-product similarity metrics across accuracy, computational cost, and use-case fit.",
+    interp: "Metric choice is a design decision with real performance consequences. Cosine dominates NLP tasks; Euclidean is preferred for dense numeric embeddings; dot product maximises retrieval speed when vectors are pre-normalised.",
+    svg: `similarityMetrics`
+  },
+  {
+    num: 8, title: "Hybrid Retrieval Pipeline",
+    objective: "Illustrate how keyword and vector search signals are fused and reranked to produce top-K results superior to either alone.",
+    interp: "Neither keyword nor semantic search is sufficient alone. Score fusion combines BM25 precision with embedding recall. The top-K gate enforces the latency budget while preserving evidence diversity.",
+    svg: `hybridRetrieval`
+  },
+  {
+    num: 9, title: "Retrieval Intelligence Architecture",
+    objective: "Detail the six-stage retrieval intelligence pipeline from raw query normalisation to a structured evidence package.",
+    interp: "Retrieval intelligence is the brain of the platform. Normalisation handles linguistic variance; filtering removes irrelevant candidates early; ranking applies multi-factor scoring. The output is not a list — it is a structured evidence package with provenance metadata.",
+    svg: `retrievalArch`
+  },
+  {
+    num: 10, title: "Evidence Ranking Heatmap",
+    objective: "Visualise how candidate documents score across multiple ranking factors using a colour-coded heatmap.",
+    interp: "The heatmap exposes ranking transparency. Decision-makers can audit why a specific document ranked first. It also reveals data quality gaps: a column of low scores signals a systematic metadata deficiency.",
+    svg: `evidenceHeatmap`
+  },
+  {
+    num: 11, title: "Knowledge Agent Pipeline",
+    objective: "Trace the six-stage knowledge agent workflow from incoming question to a grounded, cited response.",
+    interp: "The knowledge agent is the system's primary reasoning engine. Classification routes queries to the right retrieval strategy. Grounded response generation ensures every claim is evidence-backed before citation assembly.",
+    svg: `knowledgeAgent`
+  },
+  {
+    num: 12, title: "Confidence Calculation Architecture",
+    objective: "Show how four independent quality signals are aggregated into a single calibrated confidence score.",
+    interp: "Confidence is not a black box. Each contributing factor has an independent audit trail. Low confidence triggers a human-in-the-loop escalation pathway rather than presenting uncertain conclusions as fact.",
+    svg: `confidenceCalc`
+  },
+  {
+    num: 13, title: "Executive Copilot Pipeline",
+    objective: "Map the end-to-end transformation from an executive natural-language question to a structured executive briefing.",
+    interp: "The copilot layer translates technical retrieval outputs into business language. Its value is not raw data — it is packaged intelligence with explicit risk flags, actionable recommendations, and cited evidence.",
+    svg: `execCopilot`
+  },
+  {
+    num: 14, title: "Executive Briefing Structure",
+    objective: "Define the seven mandatory sections of a compliant executive briefing document.",
+    interp: "Structure enforces accountability. Every briefing produced by the platform must carry all seven sections — omitting Limitations or Confidence triggers a compliance alert before delivery.",
+    svg: `execBriefing`
+  },
+  {
+    num: 15, title: "Citation Traceability Graph",
+    objective: "Illustrate the directed acyclic graph linking executive responses back to source documents through evidence and citation nodes.",
+    interp: "Citation traceability is the platform's audit capability. Every claim in an executive briefing carries a chain of custody back to a source document. Regulators and auditors can replay any decision path.",
+    svg: `citationGraph`
+  },
+  {
+    num: 16, title: "Enterprise Decision Intelligence Flow",
+    objective: "Show the full bidirectional information flow between an executive user and the underlying knowledge infrastructure.",
+    interp: "Decision intelligence is a closed loop. Questions flow down through six layers; intelligence flows back up as structured, cited briefings. Latency at any layer degrades executive experience.",
+    svg: `decisionFlow`
+  },
+  {
+    num: 17, title: "Week 8 vs Week 9 — Capability Radar",
+    objective: "Compare the platform capability profile before and after Week 9's knowledge intelligence additions using a six-axis radar chart.",
+    interp: "Week 9 dramatically expands the Knowledge Intelligence and Executive Copilot axes while preserving the Week 8 core. The area increase quantifies the Week 9 engineering investment.",
+    svg: `capabilityRadar`
+  },
+  {
+    num: 18, title: "Enterprise Capability Maturity Model",
+    objective: "Map the platform's progression through five maturity levels from Digital Twin foundation to full Executive AI Platform.",
+    interp: "Maturity level defines the platform's strategic value to the enterprise. Week 9 advances the platform from Agentic AI (level 3) to Knowledge Intelligence (level 4), within one step of the Executive AI Platform ceiling.",
+    svg: `maturityModel`
+  },
+  {
+    num: 19, title: "Technology Stack Poster",
+    objective: "Present the full technology stack across seven horizontal layers from runtime to testing.",
+    interp: "The stack is intentionally shallow in external dependencies — Python, NumPy, and a custom retrieval library. This reduces vendor lock-in and gives the enterprise full visibility into every component in the decision path.",
+    svg: `techStack`
+  },
+  {
+    num: 20, title: "Week 9 Flagship Poster",
+    objective: "One-page synthesis of every Week 9 component, suitable for GitHub README, LinkedIn, IEEE conference poster, and portfolio homepage.",
+    interp: "This flagship poster is the platform's public face. It communicates architectural sophistication, production readiness, and research novelty in a single scannable frame.",
+    svg: `flagshipPoster`
+  }
+];
+
+// ─────────────────────────────────────────────
+// SVG RENDERERS
+// ─────────────────────────────────────────────
+const ARROW_DEFS = `<defs><marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></marker></defs>`;
+
+function svgWrap(h, content, title, desc) {
+  return `<svg width="100%" viewBox="0 0 840 ${h}" role="img" xmlns="http://www.w3.org/2000/svg">
+<title>${title}</title><desc>${desc}</desc>
+${ARROW_DEFS}
+${content}
+</svg>`;
+}
+
+// Colour palette (hardcoded for SVG compatibility)
+const C = {
+  // Purple ramp
+  p50:'#EEEDFE', p100:'#CECBF6', p200:'#AFA9EC', p400:'#7F77DD', p600:'#534AB7', p800:'#3C3489', p900:'#26215C',
+  // Teal ramp
+  t50:'#E1F5EE', t100:'#9FE1CB', t200:'#5DCAA5', t400:'#1D9E75', t600:'#0F6E56', t800:'#085041', t900:'#04342C',
+  // Blue ramp
+  b50:'#E6F1FB', b100:'#B5D4F4', b200:'#85B7EB', b400:'#378ADD', b600:'#185FA5', b800:'#0C447C', b900:'#042C53',
+  // Coral ramp
+  o50:'#FAECE7', o100:'#F5C4B3', o200:'#F0997B', o400:'#D85A30', o600:'#993C1D', o800:'#712B13', o900:'#4A1B0C',
+  // Amber ramp
+  a50:'#FAEEDA', a100:'#FAC775', a200:'#EF9F27', a400:'#BA7517', a600:'#854F0B', a800:'#633806', a900:'#412402',
+  // Gray
+  g50:'#F1EFE8', g100:'#D3D1C7', g200:'#B4B2A9', g400:'#888780', g600:'#5F5E5A', g800:'#444441', g900:'#2C2C2A',
+  // Pink
+  k50:'#FBEAF0', k100:'#F4C0D1', k400:'#D4537E', k600:'#993556', k800:'#72243E',
+};
+
+// ── F1: Master Architecture ──────────────────
+function masterArch() {
+  const layers = [
+    { label:'Executive Layer', sub:'Copilot · Briefing · Recommendations', fill:C.p50, stroke:C.p600, text:C.p900 },
+    { label:'Knowledge Agent Layer', sub:'Classification · Grounding · Citation', fill:C.b50, stroke:C.b600, text:C.b900 },
+    { label:'Retrieval Intelligence Layer', sub:'Query norm · Candidate gen · Ranking', fill:C.t50, stroke:C.t600, text:C.t900 },
+    { label:'Vector Search Layer', sub:'Embedding · Index · Hybrid search', fill:C.a50, stroke:C.a600, text:C.a900 },
+    { label:'Knowledge Base Layer', sub:'Documents · Registry · Validation', fill:C.o50, stroke:C.o600, text:C.o900 },
+    { label:'Enterprise Data Sources', sub:'Reports · Policies · Research · Logs', fill:C.g50, stroke:C.g400, text:C.g900 },
+  ];
+  let rows = '';
+  const lh = 74; const gap = 12; const sx = 60; const sw = 720;
+  layers.forEach((l, i) => {
+    const y = 40 + i*(lh+gap);
+    rows += `<rect x="${sx}" y="${y}" width="${sw}" height="${lh}" rx="10" fill="${l.fill}" stroke="${l.stroke}" stroke-width="0.5"/>`;
+    rows += `<text font-family="-apple-system,sans-serif" font-size="14" font-weight="500" fill="${l.text}" x="${sx+24}" y="${y+28}">${l.label}</text>`;
+    rows += `<text font-family="-apple-system,sans-serif" font-size="12" fill="${l.stroke}" x="${sx+24}" y="${y+50}">${l.sub}</text>`;
+    // right badge
+    const badge = ['F14', 'F11·F12', 'F9·F10', 'F5·F6·F7·F8', 'F3·F4', 'Sources'][i];
+    rows += `<text font-family="-apple-system,sans-serif" font-size="11" fill="${l.stroke}" text-anchor="end" x="${sx+sw-16}" y="${y+44}">${badge}</text>`;
+    // connector arrow
+    if (i < layers.length-1) {
+      const ay = y+lh+2;
+      rows += `<line x1="${sx+sw/2}" y1="${ay}" x2="${sx+sw/2}" y2="${ay+gap-2}" stroke="${l.stroke}" stroke-width="1" marker-end="url(#arrow)"/>`;
+    }
+  });
+  // Side labels
+  rows += `<text font-family="-apple-system,sans-serif" font-size="10" fill="${C.g600}" text-anchor="middle" transform="rotate(-90,22,${40+2.5*(lh+gap)+lh/2})">INTELLIGENCE STACK</text>`;
+  return svgWrap(620, rows, 'Master Architecture', 'Six-layer knowledge intelligence stack');
+}
+
+// ── F2: Knowledge Intelligence Layer ─────────
+function knowledgeLayer() {
+  const stages = [
+    { label:'Knowledge Base', sub:'Documents, metadata, registry', fill:C.o50, stroke:C.o600, text:C.o900 },
+    { label:'Vector Search', sub:'Embedding index, similarity engine', fill:C.a50, stroke:C.a600, text:C.a900 },
+    { label:'Retrieval Intelligence', sub:'Query norm, filtering, ranking', fill:C.t50, stroke:C.t600, text:C.t900 },
+    { label:'Knowledge Agent', sub:'Classification, grounding, citation', fill:C.b50, stroke:C.b600, text:C.b900 },
+    { label:'Executive Copilot', sub:'Insights, recommendations, briefing', fill:C.p50, stroke:C.p600, text:C.p900 },
+  ];
+  let out = '';
+  const bw=360; const bh=68; const bx=240; const gap=24;
+  stages.forEach((s,i) => {
+    const y = 30 + i*(bh+gap);
+    out += `<rect x="${bx}" y="${y}" width="${bw}" height="${bh}" rx="10" fill="${s.fill}" stroke="${s.stroke}" stroke-width="0.5"/>`;
+    out += `<text font-family="-apple-system,sans-serif" font-size="14" font-weight="500" fill="${s.text}" text-anchor="middle" x="${bx+bw/2}" y="${y+26}">${s.label}</text>`;
+    out += `<text font-family="-apple-system,sans-serif" font-size="12" fill="${s.stroke}" text-anchor="middle" x="${bx+bw/2}" y="${y+48}">${s.sub}</text>`;
+    if (i<stages.length-1) {
+      const ay=y+bh+4;
+      out += `<line x1="${bx+bw/2}" y1="${ay}" x2="${bx+bw/2}" y2="${ay+gap-8}" stroke="${s.stroke}" stroke-width="1.5" marker-end="url(#arrow)"/>`;
+    }
+    // side numbering
+    out += `<text font-family="-apple-system,sans-serif" font-size="20" font-weight="500" fill="${s.stroke}" opacity="0.18" text-anchor="middle" x="${bx-36}" y="${y+bh/2+8}">${i+1}</text>`;
+  });
+  return svgWrap(560, out, 'Knowledge Intelligence Layer', 'Five-stage knowledge pipeline');
+}
+
+// ── F3: Knowledge Base Architecture ──────────
+function kbArch() {
+  // 6 subsystems arranged in 2x3 grid inside an outer container
+  const subs = [
+    { label:'Documents', sub:'Raw content store', fill:C.o50, stroke:C.o600, text:C.o900 },
+    { label:'Collections', sub:'Logical groupings', fill:C.a50, stroke:C.a600, text:C.a900 },
+    { label:'Registry', sub:'ID & lookup index', fill:C.t50, stroke:C.t600, text:C.t900 },
+    { label:'Metadata', sub:'Schema & tags', fill:C.b50, stroke:C.b600, text:C.b900 },
+    { label:'Validation', sub:'Quality enforcement', fill:C.p50, stroke:C.p600, text:C.p900 },
+    { label:'Statistics', sub:'Corpus analytics', fill:C.k50, stroke:C.k600, text:C.k900 },
+  ];
+  let out='';
+  // Outer container
+  out += `<rect x="40" y="30" width="760" height="400" rx="16" fill="${C.g50}" stroke="${C.g400}" stroke-width="0.5"/>`;
+  out += `<text font-family="-apple-system,sans-serif" font-size="13" font-weight="500" fill="${C.g800}" x="64" y="58">Enterprise Knowledge Base</text>`;
+  // 2 rows × 3 cols
+  const cols=3; const cw=220; const ch=130; const csx=60; const csy=76; const cgx=26; const cgy=24;
+  subs.forEach((s,i) => {
+    const col=i%cols; const row=Math.floor(i/cols);
+    const x=csx+col*(cw+cgx); const y=csy+row*(ch+cgy);
+    out += `<rect x="${x}" y="${y}" width="${cw}" height="${ch}" rx="10" fill="${s.fill}" stroke="${s.stroke}" stroke-width="0.5"/>`;
+    out += `<text font-family="-apple-system,sans-serif" font-size="14" font-weight="500" fill="${s.text}" text-anchor="middle" x="${x+cw/2}" y="${y+48}">${s.label}</text>`;
+    out += `<text font-family="-apple-system,sans-serif" font-size="12" fill="${s.stroke}" text-anchor="middle" x="${x+cw/2}" y="${y+72}">${s.sub}</text>`;
+  });
+  // horizontal connectors within rows
+  [[0,1],[1,2],[3,4],[4,5]].forEach(([a,b]) => {
+    const ac=a%cols; const ar=Math.floor(a/cols);
+    const ax=csx+ac*(cw+cgx)+cw; const ay=csy+ar*(ch+cgy)+ch/2;
+    const bx=csx+(b%cols)*(cw+cgx); const by=csy+Math.floor(b/cols)*(ch+cgy)+ch/2;
+    out += `<line x1="${ax+2}" y1="${ay}" x2="${bx-2}" y2="${by}" stroke="${C.g400}" stroke-width="0.5" marker-end="url(#arrow)"/>`;
+  });
+  return svgWrap(460, out, 'Knowledge Base Architecture', 'Six subsystems of the enterprise knowledge base');
+}
+
+// ── F4: Document Lifecycle ────────────────────
+function docLifecycle() {
+  const stages = [
+    { label:'Creation', sub:'Author submits content', fill:C.g50, stroke:C.g400, text:C.g900 },
+    { label:'Validation', sub:'Schema & quality checks', fill:C.o50, stroke:C.o600, text:C.o900 },
+    { label:'Registration', sub:'Assigned ID, entered registry', fill:C.a50, stroke:C.a600, text:C.a900 },
+    { label:'Indexing', sub:'Vectorised & search-indexed', fill:C.t50, stroke:C.t600, text:C.t900 },
+    { label:'Retrieval', sub:'Actively served to agents', fill:C.b50, stroke:C.b600, text:C.b900 },
+    { label:'Archival', sub:'Retained, no longer retrieved', fill:C.g50, stroke:C.g600, text:C.g900 },
+  ];
+  let out='';
+  const bw=180; const bh=72; const bx=60; const gap=28;
+  const totalW = bw + (stages.length-1)*(bw+gap);
+  // Center the row
+  const offsetX = (840 - totalW)/2;
+  stages.forEach((s,i) => {
+    const x=offsetX+i*(bw+gap);
+    out += `<rect x="${x}" y="80" width="${bw}" height="${bh}" rx="8" fill="${s.fill}" stroke="${s.stroke}" stroke-width="0.5"/>`;
+    out += `<text font-family="-apple-system,sans-serif" font-size="13" font-weight="500" fill="${s.text}" text-anchor="middle" x="${x+bw/2}" y="108">${s.label}</text>`;
+    out += `<text font-family="-apple-system,sans-serif" font-size="11" fill="${s.stroke}" text-anchor="middle" x="${x+bw/2}" y="130">${s.sub}</text>`;
+    if (i<stages.length-1) {
+      out += `<line x1="${x+bw+2}" y1="116" x2="${x+bw+gap-2}" y2="116" stroke="${s.stroke}" stroke-width="1" marker-end="url(#arrow)"/>`;
+    }
+    // state circle
+    out += `<circle cx="${x+bw/2}" cy="56" r="16" fill="${s.fill}" stroke="${s.stroke}" stroke-width="1"/>`;
+    out += `<text font-family="-apple-system,sans-serif" font-size="12" font-weight="500" fill="${s.text}" text-anchor="middle" dominant-baseline="central" x="${x+bw/2}" y="56">${i+1}</text>`;
+    if (i<stages.length-1) {
+      out += `<line x1="${x+bw/2+16}" y1="56" x2="${x+bw/2+bw+gap-16}" y2="56" stroke="${s.stroke}" stroke-width="0.5" stroke-dasharray="4 4"/>`;
+    }
+  });
+  // Re-index marker
+  out += `<path d="M ${offsetX+4*(bw+gap)+bw/2} 168 Q ${offsetX+4*(bw+gap)+bw/2} 210 ${offsetX+2*(bw+gap)+bw/2} 210 Q ${offsetX+1.5*(bw+gap)} 210 ${offsetX+bw/2} 175" fill="none" stroke="${C.a600}" stroke-width="0.8" stroke-dasharray="3 3" marker-end="url(#arrow)"/>`;
+  out += `<text font-family="-apple-system,sans-serif" font-size="10" fill="${C.a800}" text-anchor="middle" x="${offsetX+2.5*bw+3*gap}" y="224">Re-validation loop</text>`;
+  return svgWrap(250, out, 'Document Lifecycle', 'Six-stage document state machine');
+}
+
+// ── F5: Vector Embedding Pipeline ────────────
+function vectorPipeline() {
+  const steps = [
+    { label:'Document', sub:'Raw text content', icon:'D', fill:C.g50, stroke:C.g400, text:C.g900 },
+    { label:'Feature Hashing', sub:'Vocabulary collapse', icon:'#', fill:C.o50, stroke:C.o600, text:C.o900 },
+    { label:'Embedding', sub:'Semantic projection', icon:'∑', fill:C.a50, stroke:C.a600, text:C.a900 },
+    { label:'Normalisation', sub:'Unit-sphere mapping', icon:'≡', fill:C.t50, stroke:C.t600, text:C.t900 },
+    { label:'Vector Index', sub:'ANN structure stored', icon:'⊕', fill:C.b50, stroke:C.b600, text:C.b900 },
+  ];
+  let out='';
+  const bw=130; const bh=100; const gap=20;
+  const totalW = steps.length*bw + (steps.length-1)*gap;
+  const sx = (840-totalW)/2;
+  steps.forEach((s,i) => {
+    const x=sx+i*(bw+gap);
+    out += `<rect x="${x}" y="70" width="${bw}" height="${bh}" rx="10" fill="${s.fill}" stroke="${s.stroke}" stroke-width="0.5"/>`;
+    out += `<text font-family="-apple-system,sans-serif" font-size="24" fill="${s.stroke}" text-anchor="middle" dominant-baseline="central" x="${x+bw/2}" y="108">${s.icon}</text>`;
+    out += `<text font-family="-apple-system,sans-serif" font-size="13" font-weight="500" fill="${s.text}" text-anchor="middle" x="${x+bw/2}" y="148">${s.label}</text>`;
+    out += `<text font-family="-apple-system,sans-serif" font-size="11" fill="${s.stroke}" text-anchor="middle" x="${x+bw/2}" y="44">${s.sub}</text>`;
+    out += `<line x1="${x+bw/2}" y1="48" x2="${x+bw/2}" y2="68" stroke="${s.stroke}" stroke-width="0.5" stroke-dasharray="3 3"/>`;
+    if (i<steps.length-1) {
+      out += `<line x1="${x+bw+2}" y1="120" x2="${x+bw+gap-2}" y2="120" stroke="${s.stroke}" stroke-width="1.5" marker-end="url(#arrow)"/>`;
+    }
+  });
+  // dimension annotation
+  out += `<rect x="${sx}" y="192" width="${totalW}" height="24" rx="4" fill="${C.b50}" stroke="${C.b200}" stroke-width="0.5"/>`;
+  out += `<text font-family="-apple-system,sans-serif" font-size="11" fill="${C.b800}" text-anchor="middle" x="${sx+totalW/2}" y="208">Output dimensionality: d=768 (BERT-base) · float32 · L2-normalised</text>`;
+  return svgWrap(240, out, 'Vector Embedding Pipeline', 'Five-stage document to vector transformation');
+}
+
+// ── F6: Vector Search Architecture ───────────
+function vectorSearch() {
+  // Structural: 4 nested zones
+  let out='';
+  // outer container
+  out += `<rect x="50" y="30" width="740" height="380" rx="16" fill="${C.b50}" stroke="${C.b400}" stroke-width="0.5"/>`;
+  out += `<text font-family="-apple-system,sans-serif" font-size="13" font-weight="500" fill="${C.b900}" x="74" y="58">Vector Search Engine</text>`;
+
+  const zones = [
+    { label:'Vector Index', sub:'ANN structure (HNSW)', x:80, y:76, w:300, h:120, fill:C.a50, stroke:C.a600, text:C.a900 },
+    { label:'Similarity Engine', sub:'Cosine / Euclidean / Dot', x:420, y:76, w:344, h:120, fill:C.t50, stroke:C.t600, text:C.t900 },
+    { label:'Hybrid Search', sub:'BM25 + vector fusion', x:80, y:220, w:300, h:100, fill:C.p50, stroke:C.p600, text:C.p900 },
+    { label:'Ranking', sub:'Score normalisation + rerank', x:420, y:220, w:344, h:100, fill:C.o50, stroke:C.o600, text:C.o900 },
+  ];
+  zones.forEach(z => {
+    out += `<rect x="${z.x}" y="${z.y}" width="${z.w}" height="${z.h}" rx="10" fill="${z.fill}" stroke="${z.stroke}" stroke-width="0.5"/>`;
+    out += `<text font-family="-apple-system,sans-serif" font-size="14" font-weight="500" fill="${z.text}" x="${z.x+20}" y="${z.y+36}">${z.label}</text>`;
+    out += `<text font-family="-apple-system,sans-serif" font-size="12" fill="${z.stroke}" x="${z.x+20}" y="${z.y+60}">${z.sub}</text>`;
+  });
+  // Connectors
+  const arrows = [
+    [230,196,230,218],[540,196,540,218],[380,136,418,136],[380,270,418,270]
+  ];
+  arrows.forEach(([x1,y1,x2,y2]) => {
+    out += `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${C.g400}" stroke-width="1" marker-end="url(#arrow)"/>`;
+  });
+  // Query input/output
+  out += `<text font-family="-apple-system,sans-serif" font-size="12" fill="${C.g600}" text-anchor="middle" x="420" y="24">Query vector</text>`;
+  out += `<line x1="420" y1="26" x2="600" y2="74" stroke="${C.g400}" stroke-width="1" marker-end="url(#arrow)"/>`;
+  out += `<text font-family="-apple-system,sans-serif" font-size="12" fill="${C.g600}" x="600" y="418">Ranked results →</text>`;
+  out += `<line x1="592" y1="322" x2="660" y2="408" stroke="${C.o600}" stroke-width="1" marker-end="url(#arrow)"/>`;
+
+  return svgWrap(440, out, 'Vector Search Architecture', 'Four-zone vector search engine');
+}
+
+// ── F7: Similarity Metrics Comparison ─────────
+function similarityMetrics() {
+  // This will be a rich HTML table with bar chart cells
+  // We'll render as an SVG comparison grid
+  const metrics = [
+    { name:'Cosine similarity', formula:'cos(θ) = A·B / ‖A‖‖B‖', range:'[−1, 1]', cost:'Low', bestFor:'NLP, semantic search', score:[95,60,80], fill:C.b50, stroke:C.b600, text:C.b900 },
+    { name:'Euclidean distance', formula:'d = √∑(Aᵢ−Bᵢ)²', range:'[0, ∞)', cost:'Medium', bestFor:'Dense numeric embeddings', score:[70,85,65], fill:C.t50, stroke:C.t600, text:C.t900 },
+    { name:'Dot product', formula:'A·B = ∑AᵢBᵢ', range:'(−∞, +∞)', cost:'Lowest', bestFor:'Pre-normalised vectors', score:[80,55,90], fill:C.a50, stroke:C.a600, text:C.a900 },
+  ];
+  const factors = ['Accuracy', 'Robustness', 'Speed'];
+  let out='';
+  const cardW=240; const cardH=280; const gap=20;
+  const total=metrics.length*cardW+(metrics.length-1)*gap;
+  const sx=(840-total)/2;
+
+  // Headers
+  metrics.forEach((m,i) => {
+    const x=sx+i*(cardW+gap);
+    out += `<rect x="${x}" y="30" width="${cardW}" height="${cardH}" rx="12" fill="${m.fill}" stroke="${m.stroke}" stroke-width="0.5"/>`;
+    out += `<text font-family="-apple-system,sans-serif" font-size="13" font-weight="500" fill="${m.text}" text-anchor="middle" x="${x+cardW/2}" y="60">${m.name}</text>`;
+    out += `<text font-family="-apple-system,sans-serif" font-size="11" fill="${m.stroke}" font-family="monospace" text-anchor="middle" x="${x+cardW/2}" y="82">${m.formula}</text>`;
+    // divider
+    out += `<line x1="${x+16}" y1="92" x2="${x+cardW-16}" y2="92" stroke="${m.stroke}" stroke-width="0.3"/>`;
+    out += `<text font-family="-apple-system,sans-serif" font-size="11" fill="${m.stroke}" x="${x+16}" y="112">Range: ${m.range}</text>`;
+    out += `<text font-family="-apple-system,sans-serif" font-size="11" fill="${m.stroke}" x="${x+16}" y="130">Cost: ${m.cost}</text>`;
+    out += `<text font-family="-apple-system,sans-serif" font-size="11" fill="${m.stroke}" x="${x+16}" y="148">Best for: ${m.bestFor}</text>`;
+    // bar chart
+    factors.forEach((f,fi) => {
+      const by=172+fi*30;
+      const bw2=m.score[fi]/100*(cardW-52);
+      out += `<text font-family="-apple-system,sans-serif" font-size="10" fill="${m.text}" x="${x+16}" y="${by+2}">${f}</text>`;
+      out += `<rect x="${x+16}" y="${by+6}" width="${cardW-52}" height="10" rx="2" fill="${m.stroke}" opacity="0.12"/>`;
+      out += `<rect x="${x+16}" y="${by+6}" width="${bw2}" height="10" rx="2" fill="${m.stroke}" opacity="0.7"/>`;
+      out += `<text font-family="-apple-system,sans-serif" font-size="9" fill="${m.text}" text-anchor="end" x="${x+cardW-16}" y="${by+14}">${m.score[fi]}%</text>`;
+    });
+  });
+  return svgWrap(340, out, 'Similarity Metrics Comparison', 'Three similarity metrics compared across accuracy, robustness, and speed');
+}
+
+// ── F8: Hybrid Retrieval Pipeline ─────────────
+function hybridRetrieval() {
+  let out='';
+  // Two source boxes
+  const srcY=40; const midY=160; const fuseY=260; const topkY=360;
+  // keyword
+  out += `<rect x="80" y="${srcY}" width="240" height="72" rx="10" fill="${C.a50}" stroke="${C.a600}" stroke-width="0.5"/>`;
+  out += `<text font-family="-apple-system,sans-serif" font-size="14" font-weight="500" fill="${C.a900}" text-anchor="middle" x="200" y="76">Keyword Search</text>`;
+  out += `<text font-family="-apple-system,sans-serif" font-size="12" fill="${C.a600}" text-anchor="middle" x="200" y="98">BM25 · TF-IDF</text>`;
+  // vector
+  out += `<rect x="520" y="${srcY}" width="240" height="72" rx="10" fill="${C.b50}" stroke="${C.b600}" stroke-width="0.5"/>`;
+  out += `<text font-family="-apple-system,sans-serif" font-size="14" font-weight="500" fill="${C.b900}" text-anchor="middle" x="640" y="76">Vector Search</text>`;
+  out += `<text font-family="-apple-system,sans-serif" font-size="12" fill="${C.b600}" text-anchor="middle" x="640" y="98">Cosine ANN · HNSW</text>`;
+  // arrows to fusion
+  out += `<line x1="200" y1="114" x2="370" y2="158" stroke="${C.a600}" stroke-width="1.5" marker-end="url(#arrow)"/>`;
+  out += `<line x1="640" y1="114" x2="470" y2="158" stroke="${C.b600}" stroke-width="1.5" marker-end="url(#arrow)"/>`;
+  // score fusion box
+  out += `<rect x="280" y="${midY}" width="280" height="80" rx="10" fill="${C.t50}" stroke="${C.t600}" stroke-width="0.5"/>`;
+  out += `<text font-family="-apple-system,sans-serif" font-size="14" font-weight="500" fill="${C.t900}" text-anchor="middle" x="420" y="196">Score Fusion</text>`;
+  out += `<text font-family="-apple-system,sans-serif" font-size="12" fill="${C.t600}" text-anchor="middle" x="420" y="218">α·BM25 + (1−α)·cosine · RRF</text>`;
+  // arrow down
+  out += `<line x1="420" y1="242" x2="420" y2="258" stroke="${C.t600}" stroke-width="1.5" marker-end="url(#arrow)"/>`;
+  // top-k box
+  out += `<rect x="280" y="${fuseY}" width="280" height="80" rx="10" fill="${C.p50}" stroke="${C.p600}" stroke-width="0.5"/>`;
+  out += `<text font-family="-apple-system,sans-serif" font-size="14" font-weight="500" fill="${C.p900}" text-anchor="middle" x="420" y="296">Top-K Gate</text>`;
+  out += `<text font-family="-apple-system,sans-serif" font-size="12" fill="${C.p600}" text-anchor="middle" x="420" y="318">K=10 · latency budget 50 ms</text>`;
+  // Output arrow
+  out += `<line x1="420" y1="342" x2="420" y2="370" stroke="${C.p600}" stroke-width="1.5" marker-end="url(#arrow)"/>`;
+  out += `<text font-family="-apple-system,sans-serif" font-size="12" fill="${C.g600}" text-anchor="middle" x="420" y="392">Evidence Package</text>`;
+
+  return svgWrap(420, out, 'Hybrid Retrieval Pipeline', 'Keyword plus vector search fusion pipeline');
+}
+
+// ── F9: Retrieval Intelligence Architecture ────
+function retrievalArch() {
+  const stages = [
+    { label:'Query Input', sub:'Raw executive question', fill:C.g50, stroke:C.g400, text:C.g900 },
+    { label:'Normalisation', sub:'Spell, expand, parse intent', fill:C.a50, stroke:C.a600, text:C.a900 },
+    { label:'Candidate Generation', sub:'Hybrid retrieval top-100', fill:C.o50, stroke:C.o600, text:C.o900 },
+    { label:'Filtering', sub:'Date, access, relevance threshold', fill:C.t50, stroke:C.t600, text:C.t900 },
+    { label:'Ranking', sub:'Multi-factor score fusion', fill:C.b50, stroke:C.b600, text:C.b900 },
+    { label:'Evidence Package', sub:'Structured output + provenance', fill:C.p50, stroke:C.p600, text:C.p900 },
+  ];
+  let out='';
+  const bw=360; const bh=62; const bx=240; const gap=18;
+  stages.forEach((s,i) => {
+    const y=30+i*(bh+gap);
+    out += `<rect x="${bx}" y="${y}" width="${bw}" height="${bh}" rx="10" fill="${s.fill}" stroke="${s.stroke}" stroke-width="0.5"/>`;
+    out += `<text font-family="-apple-system,sans-serif" font-size="14" font-weight="500" fill="${s.text}" text-anchor="middle" x="${bx+bw/2}" y="${y+24}">${s.label}</text>`;
+    out += `<text font-family="-apple-system,sans-serif" font-size="12" fill="${s.stroke}" text-anchor="middle" x="${bx+bw/2}" y="${y+46}">${s.sub}</text>`;
+    if (i<stages.length-1) {
+      out += `<line x1="${bx+bw/2}" y1="${y+bh+2}" x2="${bx+bw/2}" y2="${y+bh+gap-2}" stroke="${s.stroke}" stroke-width="1.5" marker-end="url(#arrow)"/>`;
+    }
+    // metric annotations on right
+    const metrics=['','Query expansion +23%','100 candidates','Filtered to 30','Top-10 reranked','Confidence + citations'][i];
+    if (metrics) {
+      out += `<rect x="${bx+bw+12}" y="${y+14}" width="200" height="28" rx="4" fill="${s.fill}" stroke="${s.stroke}" stroke-width="0.3"/>`;
+      out += `<text font-family="-apple-system,sans-serif" font-size="11" fill="${s.stroke}" x="${bx+bw+24}" y="${y+32}">${metrics}</text>`;
+      out += `<line x1="${bx+bw}" y1="${y+bh/2}" x2="${bx+bw+12}" y2="${y+bh/2}" stroke="${s.stroke}" stroke-width="0.5" stroke-dasharray="3 3"/>`;
+    }
+  });
+  return svgWrap(560, out, 'Retrieval Intelligence Architecture', 'Six-stage retrieval pipeline with metric annotations');
+}
+
+// ── F10: Evidence Ranking Heatmap ─────────────
+function evidenceHeatmap() {
+  // Returns an HTML table as SVG representation
+  const docs=['Doc A','Doc B','Doc C','Doc D','Doc E','Doc F','Doc G'];
+  const factors=['Semantic sim.','Keyword match','Recency','Authority','Coverage','Citation count'];
+  const data = [
+    [92,88,75,95,80,70],
+    [45,90,95,60,72,85],
+    [80,55,40,88,95,60],
+    [60,72,88,45,68,90],
+    [95,40,60,70,55,45],
+    [30,95,72,50,88,78],
+    [75,68,50,82,40,92],
+  ];
+  let out='';
+  const cellW=108; const cellH=36; const rowH=36;
+  const headerH=48; const rowLabelW=72;
+  const totalW=rowLabelW+factors.length*cellW; const sx=(840-totalW)/2;
+
+  // Col headers
+  factors.forEach((f,fi) => {
+    out += `<text font-family="-apple-system,sans-serif" font-size="11" fill="${C.g800}" text-anchor="middle" x="${sx+rowLabelW+(fi+0.5)*cellW}" y="26">${f}</text>`;
+  });
+
+  docs.forEach((d,di) => {
+    const ry=headerH+di*rowH;
+    // row label
+    out += `<text font-family="-apple-system,sans-serif" font-size="12" font-weight="500" fill="${C.g900}" text-anchor="end" x="${sx+rowLabelW-8}" y="${ry+rowH/2+5}">${d}</text>`;
+    data[di].forEach((v,fi) => {
+      const cx=sx+rowLabelW+fi*cellW;
+      // interpolate: 0=white, 100=strong teal
+      const intensity=v/100;
+      // Teal from 50 to 600
+      const r=Math.round(225-intensity*(225-15));
+      const g=Math.round(245-intensity*(245-110));
+      const b=Math.round(238-intensity*(238-86));
+      out += `<rect x="${cx+2}" y="${ry+2}" width="${cellW-4}" height="${rowH-4}" rx="4" fill="rgb(${r},${g},${b})"/>`;
+      const textFill=v>60?'#04342C':'#0F6E56';
+      out += `<text font-family="-apple-system,sans-serif" font-size="12" font-weight="500" fill="${textFill}" text-anchor="middle" dominant-baseline="central" x="${cx+cellW/2}" y="${ry+rowH/2}">${v}</text>`;
+    });
+  });
+  // legend
+  const lgx=sx; const lgy=headerH+docs.length*rowH+16;
+  out += `<text font-family="-apple-system,sans-serif" font-size="11" fill="${C.g600}" x="${lgx}" y="${lgy+12}">Score</text>`;
+  [0,25,50,75,100].forEach((v,i) => {
+    const lx=lgx+56+i*56;
+    const inten=v/100;
+    const r=Math.round(225-inten*(225-15));
+    const g=Math.round(245-inten*(245-110));
+    const b=Math.round(238-inten*(238-86));
+    out += `<rect x="${lx}" y="${lgy}" width="48" height="18" rx="3" fill="rgb(${r},${g},${b})"/>`;
+    out += `<text font-family="-apple-system,sans-serif" font-size="10" fill="${C.g800}" text-anchor="middle" x="${lx+24}" y="${lgy+30}">${v}</text>`;
+  });
+  const svgH=headerH+docs.length*rowH+60;
+  return svgWrap(svgH, out, 'Evidence Ranking Heatmap', 'Document scores across ranking factors');
+}
+
+// ── F11: Knowledge Agent Pipeline ─────────────
+function knowledgeAgent() {
+  const stages = [
+    { label:'Question', sub:'Executive natural language', fill:C.g50, stroke:C.g400, text:C.g900 },
+    { label:'Classification', sub:'Intent · domain · complexity', fill:C.o50, stroke:C.o600, text:C.o900 },
+    { label:'Retrieval', sub:'Hybrid search evidence fetch', fill:C.a50, stroke:C.a600, text:C.a900 },
+    { label:'Evidence Analysis', sub:'Coverage assessment · gaps', fill:C.t50, stroke:C.t600, text:C.t900 },
+    { label:'Grounded Response', sub:'Evidence-anchored synthesis', fill:C.b50, stroke:C.b600, text:C.b900 },
+    { label:'Citation', sub:'Source linking · provenance', fill:C.p50, stroke:C.p600, text:C.p900 },
+  ];
+  let out='';
+  const bw=380; const bh=66; const bx=230; const gap=20;
+  stages.forEach((s,i) => {
+    const y=30+i*(bh+gap);
+    out += `<rect x="${bx}" y="${y}" width="${bw}" height="${bh}" rx="10" fill="${s.fill}" stroke="${s.stroke}" stroke-width="0.5"/>`;
+    out += `<text font-family="-apple-system,sans-serif" font-size="14" font-weight="500" fill="${s.text}" text-anchor="middle" x="${bx+bw/2}" y="${y+26}">${s.label}</text>`;
+    out += `<text font-family="-apple-system,sans-serif" font-size="12" fill="${s.stroke}" text-anchor="middle" x="${bx+bw/2}" y="${y+48}">${s.sub}</text>`;
+    if (i<stages.length-1) {
+      out += `<line x1="${bx+bw/2}" y1="${y+bh+2}" x2="${bx+bw/2}" y2="${y+bh+gap-2}" stroke="${s.stroke}" stroke-width="1.5" marker-end="url(#arrow)"/>`;
+    }
+  });
+  return svgWrap(600, out, 'Knowledge Agent Pipeline', 'Six-stage knowledge agent workflow');
+}
+
+// ── F12: Confidence Calculation ───────────────
+function confidenceCalc() {
+  let out='';
+  const factors = [
+    { label:'Retrieval score', sub:'Top-K similarity mean', pct:0.35, fill:C.b50, stroke:C.b600, text:C.b900 },
+    { label:'Coverage', sub:'Query term coverage', pct:0.25, fill:C.t50, stroke:C.t600, text:C.t900 },
+    { label:'Evidence count', sub:'Corroborating documents', pct:0.25, fill:C.a50, stroke:C.a600, text:C.a900 },
+    { label:'Citation quality', sub:'Source authority score', pct:0.15, fill:C.o50, stroke:C.o600, text:C.o900 },
+  ];
+  // Left column: input boxes
+  const lx=60; const fw=200; const fh=72; const fgap=24;
+  const totalH=factors.length*fh+(factors.length-1)*fgap;
+  const startY=(500-totalH)/2;
+  factors.forEach((f,i) => {
+    const y=startY+i*(fh+fgap);
+    out += `<rect x="${lx}" y="${y}" width="${fw}" height="${fh}" rx="10" fill="${f.fill}" stroke="${f.stroke}" stroke-width="0.5"/>`;
+    out += `<text font-family="-apple-system,sans-serif" font-size="13" font-weight="500" fill="${f.text}" x="${lx+16}" y="${y+24}">${f.label}</text>`;
+    out += `<text font-family="-apple-system,sans-serif" font-size="11" fill="${f.stroke}" x="${lx+16}" y="${y+44}">${f.sub}</text>`;
+    out += `<text font-family="-apple-system,sans-serif" font-size="11" font-weight="500" fill="${f.stroke}" text-anchor="end" x="${lx+fw-12}" y="${y+54}">w=${f.pct}</text>`;
+    // arrow to aggregator
+    const midY=y+fh/2;
+    out += `<line x1="${lx+fw}" y1="${midY}" x2="450" y2="${250}" stroke="${f.stroke}" stroke-width="0.8" stroke-dasharray="4 3" marker-end="url(#arrow)" opacity="0.7"/>`;
+  });
+  // Aggregator circle
+  out += `<circle cx="510" cy="250" r="80" fill="${C.p50}" stroke="${C.p600}" stroke-width="1"/>`;
+  out += `<text font-family="-apple-system,sans-serif" font-size="13" font-weight="500" fill="${C.p900}" text-anchor="middle" x="510" y="236">Confidence</text>`;
+  out += `<text font-family="-apple-system,sans-serif" font-size="11" fill="${C.p600}" text-anchor="middle" x="510" y="254">Weighted sum</text>`;
+  out += `<text font-family="-apple-system,sans-serif" font-size="22" font-weight="500" fill="${C.p800}" text-anchor="middle" x="510" y="284">0–1</text>`;
+  // Output arrow
+  out += `<line x1="592" y1="250" x2="660" y2="250" stroke="${C.p600}" stroke-width="1.5" marker-end="url(#arrow)"/>`;
+  out += `<rect x="662" y="226" width="140" height="48" rx="8" fill="${C.p50}" stroke="${C.p600}" stroke-width="0.5"/>`;
+  out += `<text font-family="-apple-system,sans-serif" font-size="13" font-weight="500" fill="${C.p900}" text-anchor="middle" x="732" y="246">Threshold</text>`;
+  out += `<text font-family="-apple-system,sans-serif" font-size="12" fill="${C.p600}" text-anchor="middle" x="732" y="264">≥0.75 auto-brief</text>`;
+
+  return svgWrap(500, out, 'Confidence Calculation', 'Four-factor weighted confidence aggregation');
+}
+
+// ── F13: Executive Copilot Pipeline ───────────
+function execCopilot() {
+  const stages = [
+    { label:'Executive Question', sub:'Unstructured NL input', fill:C.g50, stroke:C.g400, text:C.g900 },
+    { label:'Knowledge Agent', sub:'Classification, retrieval, grounding', fill:C.b50, stroke:C.b600, text:C.b900 },
+    { label:'Evidence', sub:'Top-K ranked documents', fill:C.t50, stroke:C.t600, text:C.t900 },
+    { label:'Insights', sub:'Pattern extraction · synthesis', fill:C.a50, stroke:C.a600, text:C.a900 },
+    { label:'Recommendations', sub:'Prioritised action items', fill:C.o50, stroke:C.o600, text:C.o900 },
+    { label:'Executive Briefing', sub:'Formatted · cited · confidence-scored', fill:C.p50, stroke:C.p600, text:C.p900 },
+  ];
+  let out='';
+  const bw=380; const bh=64; const bx=230; const gap=18;
+  stages.forEach((s,i) => {
+    const y=30+i*(bh+gap);
+    out += `<rect x="${bx}" y="${y}" width="${bw}" height="${bh}" rx="10" fill="${s.fill}" stroke="${s.stroke}" stroke-width="0.5"/>`;
+    out += `<text font-family="-apple-system,sans-serif" font-size="14" font-weight="500" fill="${s.text}" text-anchor="middle" x="${bx+bw/2}" y="${y+25}">${s.label}</text>`;
+    out += `<text font-family="-apple-system,sans-serif" font-size="12" fill="${s.stroke}" text-anchor="middle" x="${bx+bw/2}" y="${y+47}">${s.sub}</text>`;
+    if (i<stages.length-1) {
+      out += `<line x1="${bx+bw/2}" y1="${y+bh+2}" x2="${bx+bw/2}" y2="${y+bh+gap-2}" stroke="${s.stroke}" stroke-width="1.5" marker-end="url(#arrow)"/>`;
+    }
+  });
+  return svgWrap(580, out, 'Executive Copilot Pipeline', 'Six-stage copilot transformation pipeline');
+}
+
+// ── F14: Executive Briefing Structure ─────────
+function execBriefing() {
+  const sections = [
+    { label:'Executive Summary', sub:'≤3 sentences · decision-ready', w:1.0, fill:C.p50, stroke:C.p600, text:C.p900 },
+    { label:'Key Findings', sub:'Evidence-backed discoveries', w:1.0, fill:C.b50, stroke:C.b600, text:C.b900 },
+    { label:'Risk Assessment', sub:'Identified risks + severity', w:0.5, fill:C.o50, stroke:C.o600, text:C.o900 },
+    { label:'Recommendations', sub:'Prioritised actions', w:0.5, fill:C.t50, stroke:C.t600, text:C.t900 },
+    { label:'Supporting Evidence', sub:'Ranked source citations', w:0.6, fill:C.a50, stroke:C.a600, text:C.a900 },
+    { label:'Confidence', sub:'0–1 score + contributors', w:0.2, fill:C.k50, stroke:C.k600, text:C.k900 },
+    { label:'Limitations', sub:'Data gaps · caveats', w:0.2, fill:C.g50, stroke:C.g400, text:C.g900 },
+  ];
+  let out='';
+  const pageW=700; const sx=(840-pageW)/2;
+  const fullW=pageW; const rh=60; const gap=8;
+  let y=30;
+  sections.forEach((s,i) => {
+    const sw=fullW*s.w;
+    const bx=sx+(fullW-sw)/2;
+    out += `<rect x="${bx}" y="${y}" width="${sw}" height="${rh}" rx="8" fill="${s.fill}" stroke="${s.stroke}" stroke-width="0.5"/>`;
+    out += `<text font-family="-apple-system,sans-serif" font-size="13" font-weight="500" fill="${s.text}" x="${bx+20}" y="${y+24}">${s.label}</text>`;
+    out += `<text font-family="-apple-system,sans-serif" font-size="11" fill="${s.stroke}" x="${bx+20}" y="${y+44}">${s.sub}</text>`;
+    // section number
+    out += `<text font-family="-apple-system,sans-serif" font-size="11" fill="${s.stroke}" text-anchor="end" x="${bx+sw-16}" y="${y+40}">§${i+1}</text>`;
+    y+=rh+gap;
+  });
+  return svgWrap(y+20, out, 'Executive Briefing Structure', 'Seven mandatory sections of an executive briefing');
+}
+
+// ── F15: Citation Traceability Graph ──────────
+function citationGraph() {
+  let out='';
+  // Nodes
+  const nodes = [
+    { id:'Q', label:'Question', x:420, y:40, r:32, fill:C.g50, stroke:C.g400, text:C.g900 },
+    { id:'E1', label:'Evidence 1', x:220, y:180, r:28, fill:C.t50, stroke:C.t600, text:C.t900 },
+    { id:'E2', label:'Evidence 2', x:420, y:180, r:28, fill:C.t50, stroke:C.t600, text:C.t900 },
+    { id:'E3', label:'Evidence 3', x:620, y:180, r:28, fill:C.t50, stroke:C.t600, text:C.t900 },
+    { id:'C1', label:'Citation 1', x:150, y:340, r:24, fill:C.b50, stroke:C.b600, text:C.b900 },
+    { id:'C2', label:'Citation 2', x:340, y:340, r:24, fill:C.b50, stroke:C.b600, text:C.b900 },
+    { id:'C3', label:'Citation 3', x:530, y:340, r:24, fill:C.b50, stroke:C.b600, text:C.b900 },
+    { id:'C4', label:'Citation 4', x:700, y:340, r:24, fill:C.b50, stroke:C.b600, text:C.b900 },
+    { id:'D1', label:'Doc A', x:100, y:480, r:22, fill:C.o50, stroke:C.o600, text:C.o900 },
+    { id:'D2', label:'Doc B', x:260, y:480, r:22, fill:C.o50, stroke:C.o600, text:C.o900 },
+    { id:'D3', label:'Doc C', x:420, y:480, r:22, fill:C.o50, stroke:C.o600, text:C.o900 },
+    { id:'D4', label:'Doc D', x:580, y:480, r:22, fill:C.o50, stroke:C.o600, text:C.o900 },
+    { id:'D5', label:'Doc E', x:730, y:480, r:22, fill:C.o50, stroke:C.o600, text:C.o900 },
+  ];
+  const edges = [
+    ['Q','E1'],['Q','E2'],['Q','E3'],
+    ['E1','C1'],['E1','C2'],['E2','C2'],['E2','C3'],['E3','C3'],['E3','C4'],
+    ['C1','D1'],['C2','D2'],['C2','D3'],['C3','D3'],['C3','D4'],['C4','D5'],
+  ];
+  const nodeMap={};
+  nodes.forEach(n=>nodeMap[n.id]=n);
+  edges.forEach(([a,b])=>{
+    const na=nodeMap[a]; const nb=nodeMap[b];
+    const dx=nb.x-na.x; const dy=nb.y-na.y; const d=Math.sqrt(dx*dx+dy*dy);
+    const x1=na.x+na.r*dx/d; const y1=na.y+na.r*dy/d;
+    const x2=nb.x-nb.r*dx/d; const y2=nb.y-nb.r*dy/d;
+    out += `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${C.g400}" stroke-width="0.8" marker-end="url(#arrow)"/>`;
+  });
+  nodes.forEach(n => {
+    out += `<circle cx="${n.x}" cy="${n.y}" r="${n.r}" fill="${n.fill}" stroke="${n.stroke}" stroke-width="0.5"/>`;
+    out += `<text font-family="-apple-system,sans-serif" font-size="11" font-weight="500" fill="${n.text}" text-anchor="middle" dominant-baseline="central" x="${n.x}" y="${n.y}">${n.label}</text>`;
+  });
+  // legend
+  [['Question',C.g50,C.g400,C.g900],['Evidence',C.t50,C.t600,C.t900],['Citation',C.b50,C.b600,C.b900],['Document',C.o50,C.o600,C.o900]].forEach(([l,f,s,t],i)=>{
+    const lx=60+i*180; const ly=540;
+    out += `<circle cx="${lx}" cy="${ly}" r="10" fill="${f}" stroke="${s}" stroke-width="0.5"/>`;
+    out += `<text font-family="-apple-system,sans-serif" font-size="11" fill="${t}" x="${lx+16}" y="${ly+4}">${l}</text>`;
+  });
+  return svgWrap(580, out, 'Citation Traceability Graph', 'Directed acyclic graph from question to source documents');
+}
+
+// ── F16: Enterprise Decision Intelligence Flow ─
+function decisionFlow() {
+  const nodes = [
+    { label:'Executive', sub:'Decision maker', fill:C.p50, stroke:C.p600, text:C.p900 },
+    { label:'Copilot', sub:'NL interface layer', fill:C.b50, stroke:C.b600, text:C.b900 },
+    { label:'Knowledge Agent', sub:'Reasoning engine', fill:C.t50, stroke:C.t600, text:C.t900 },
+    { label:'Retrieval', sub:'Intelligence layer', fill:C.a50, stroke:C.a600, text:C.a900 },
+    { label:'Vector Search', sub:'Similarity engine', fill:C.o50, stroke:C.o600, text:C.o900 },
+    { label:'Knowledge Base', sub:'Document corpus', fill:C.g50, stroke:C.g400, text:C.g900 },
+  ];
+  let out='';
+  const bw=340; const bh=62; const bx=250; const gap=20;
+  nodes.forEach((n,i) => {
+    const y=30+i*(bh+gap);
+    out += `<rect x="${bx}" y="${y}" width="${bw}" height="${bh}" rx="10" fill="${n.fill}" stroke="${n.stroke}" stroke-width="0.5"/>`;
+    out += `<text font-family="-apple-system,sans-serif" font-size="14" font-weight="500" fill="${n.text}" text-anchor="middle" x="${bx+bw/2}" y="${y+24}">${n.label}</text>`;
+    out += `<text font-family="-apple-system,sans-serif" font-size="12" fill="${n.stroke}" text-anchor="middle" x="${bx+bw/2}" y="${y+46}">${n.sub}</text>`;
+    if (i<nodes.length-1) {
+      // down arrow (question flow)
+      out += `<line x1="${bx+bw/2-20}" y1="${y+bh+2}" x2="${bx+bw/2-20}" y2="${y+bh+gap-2}" stroke="${n.stroke}" stroke-width="1.5" marker-end="url(#arrow)"/>`;
+      // up arrow (intelligence flow)
+      out += `<line x1="${bx+bw/2+20}" y1="${y+bh+gap-2}" x2="${bx+bw/2+20}" y2="${y+bh+2}" stroke="${nodes[i+1].stroke}" stroke-width="1.5" marker-end="url(#arrow)"/>`;
+    }
+  });
+  // Flow labels
+  out += `<text font-family="-apple-system,sans-serif" font-size="11" fill="${C.g600}" x="${bx-140}" y="350">← Questions</text>`;
+  out += `<text font-family="-apple-system,sans-serif" font-size="11" fill="${C.g600}" x="${bx+bw+16}" y="350">Intelligence →</text>`;
+  return svgWrap(580, out, 'Enterprise Decision Intelligence Flow', 'Bidirectional flow between executive and knowledge infrastructure');
+}
+
+// ── F17: Capability Radar ─────────────────────
+function capabilityRadar() {
+  // Canvas-based radar will be injected as HTML
+  return `RADAR_CHART`;
+}
+
+// ── F18: Maturity Model ───────────────────────
+function maturityModel() {
+  const levels = [
+    { n:1, label:'Digital Twin', sub:'Sensor integration, real-time state', fill:C.g50, stroke:C.g400, text:C.g900 },
+    { n:2, label:'Decision Intelligence', sub:'Prediction, simulation, optimisation', fill:C.a50, stroke:C.a600, text:C.a900 },
+    { n:3, label:'Agentic AI', sub:'Autonomous agents, multi-step planning', fill:C.t50, stroke:C.t600, text:C.t900 },
+    { n:4, label:'Knowledge Intelligence', sub:'Grounded retrieval, citation traceability', fill:C.b50, stroke:C.b600, text:C.b900, current:true },
+    { n:5, label:'Executive AI Platform', sub:'Full decision loop, board-ready briefings', fill:C.p50, stroke:C.p600, text:C.p900 },
+  ];
+  let out='';
+  levels.forEach((l,i) => {
+    const idx=levels.length-1-i; // bottom=1, top=5
+    const w=680-idx*90; const x=(840-w)/2;
+    const y=30+i*90;
+    const sw=l.current?1.5:0.5;
+    out += `<rect x="${x}" y="${y}" width="${w}" height="72" rx="10" fill="${l.fill}" stroke="${l.stroke}" stroke-width="${sw}"/>`;
+    if (l.current) {
+      out += `<rect x="${x}" y="${y}" width="${w}" height="72" rx="10" fill="none" stroke="${l.stroke}" stroke-width="2" opacity="0.4"/>`;
+      out += `<text font-family="-apple-system,sans-serif" font-size="10" font-weight="500" fill="${l.stroke}" text-anchor="end" x="${x+w-16}" y="${y+24}">← Week 9</text>`;
+    }
+    out += `<text font-family="-apple-system,sans-serif" font-size="11" fill="${l.stroke}" x="${x+24}" y="${y+22}">Level ${l.n}</text>`;
+    out += `<text font-family="-apple-system,sans-serif" font-size="14" font-weight="500" fill="${l.text}" x="${x+24}" y="${y+44}">${l.label}</text>`;
+    out += `<text font-family="-apple-system,sans-serif" font-size="12" fill="${l.stroke}" x="${x+24}" y="${y+62}">${l.sub}</text>`;
+  });
+  return svgWrap(540, out, 'Capability Maturity Model', 'Five-level enterprise AI maturity model');
+}
+
+// ── F19: Technology Stack ─────────────────────
+function techStack() {
+  const layers = [
+    { label:'Testing Layer', sub:'pytest · coverage · benchmarks · CI', fill:C.g50, stroke:C.g400, text:C.g900 },
+    { label:'API Layer', sub:'FastAPI · REST endpoints · JSON schema', fill:C.k50, stroke:C.k600, text:C.k800 },
+    { label:'Agent Layer', sub:'KnowledgeAgent · ExecutiveCopilot · CitationEngine', fill:C.p50, stroke:C.p600, text:C.p900 },
+    { label:'Retrieval Layer', sub:'RetrievalIntelligence · HybridSearch · ScoreFusion', fill:C.b50, stroke:C.b600, text:C.b900 },
+    { label:'Knowledge Layer', sub:'KnowledgeBase · VectorIndex · EmbeddingPipeline', fill:C.t50, stroke:C.t600, text:C.t900 },
+    { label:'Computation Layer', sub:'NumPy · SciPy · feature hashing · normalisation', fill:C.a50, stroke:C.a600, text:C.a900 },
+    { label:'Runtime', sub:'Python 3.11 · dataclasses · typing · asyncio', fill:C.o50, stroke:C.o600, text:C.o900 },
+  ];
+  let out='';
+  const bh=68; const gap=8; const sx=60; const sw=720;
+  layers.forEach((l,i) => {
+    const y=30+i*(bh+gap);
+    out += `<rect x="${sx}" y="${y}" width="${sw}" height="${bh}" rx="8" fill="${l.fill}" stroke="${l.stroke}" stroke-width="0.5"/>`;
+    out += `<text font-family="-apple-system,sans-serif" font-size="13" font-weight="500" fill="${l.text}" x="${sx+20}" y="${y+26}">${l.label}</text>`;
+    out += `<text font-family="-apple-system,sans-serif" font-family="monospace" font-size="11" fill="${l.stroke}" x="${sx+20}" y="${y+48}">${l.sub}</text>`;
+    // layer number badge right
+    out += `<text font-family="-apple-system,sans-serif" font-size="11" fill="${l.stroke}" text-anchor="end" x="${sx+sw-16}" y="${y+40}">L${layers.length-i}</text>`;
+  });
+  return svgWrap(650, out, 'Technology Stack', 'Seven-layer technology stack from runtime to testing');
+}
+
+// ── F20: Flagship Poster ──────────────────────
+function flagshipPoster() {
+  let out='';
+  // Title area
+  out += `<rect x="0" y="0" width="840" height="80" fill="${C.p50}" stroke="${C.p200}" stroke-width="0"/>`;
+  out += `<text font-family="-apple-system,sans-serif" font-size="18" font-weight="500" fill="${C.p900}" text-anchor="middle" x="420" y="30">Enterprise Digital Twin &amp; Decision Intelligence Platform</text>`;
+  out += `<text font-family="-apple-system,sans-serif" font-size="13" fill="${C.p800}" text-anchor="middle" x="420" y="52">Week 9 — Knowledge Intelligence &amp; Executive Copilot</text>`;
+  out += `<text font-family="-apple-system,sans-serif" font-size="11" fill="${C.p600}" text-anchor="middle" x="420" y="70">Python · NumPy · Vector Search · Retrieval Intelligence · Knowledge Agent · Executive AI</text>`;
+
+  // Mini stack (left column)
+  const stack = ['Executive Copilot','Knowledge Agent','Retrieval Intelligence','Vector Search','Knowledge Base'];
+  const colors = [[C.p50,C.p600,C.p900],[C.b50,C.b600,C.b900],[C.t50,C.t600,C.t900],[C.a50,C.a600,C.a900],[C.o50,C.o600,C.o900]];
+  stack.forEach((s,i) => {
+    const [f,st,tx]=colors[i];
+    const y=100+i*72;
+    out += `<rect x="20" y="${y}" width="240" height="60" rx="8" fill="${f}" stroke="${st}" stroke-width="0.5"/>`;
+    out += `<text font-family="-apple-system,sans-serif" font-size="12" font-weight="500" fill="${tx}" text-anchor="middle" x="140" y="${y+24}">${s}</text>`;
+    const subs=['Briefing · Insights · Recommendations','Classification · Grounding · Citation','Query norm · Filter · Rank','Embed · Index · Hybrid search','Documents · Registry · Validate'][i];
+    out += `<text font-family="-apple-system,sans-serif" font-size="10" fill="${st}" text-anchor="middle" x="140" y="${y+44}">${subs}</text>`;
+    if (i<stack.length-1) {
+      out += `<line x1="140" y1="${y+60}" x2="140" y2="${y+72}" stroke="${st}" stroke-width="1" marker-end="url(#arrow)"/>`;
+    }
+  });
+
+  // Centre: mini pipeline
+  const cpx=290; const cpy=100;
+  out += `<text font-family="-apple-system,sans-serif" font-size="12" font-weight="500" fill="${C.g800}" x="${cpx}" y="${cpy-4}">Knowledge Document Lifecycle</text>`;
+  ['Creation','Validation','Registration','Indexing','Retrieval','Archival'].forEach((s,i) => {
+    const col=i%3; const row=Math.floor(i/3);
+    const x=cpx+col*90; const y=cpy+10+row*72;
+    const cls=[[C.g50,C.g400,C.g900],[C.o50,C.o600,C.o900],[C.a50,C.a600,C.a900],[C.t50,C.t600,C.t900],[C.b50,C.b600,C.b900],[C.g50,C.g600,C.g900]][i];
+    out += `<rect x="${x}" y="${y}" width="80" height="52" rx="6" fill="${cls[0]}" stroke="${cls[1]}" stroke-width="0.5"/>`;
+    out += `<text font-family="-apple-system,sans-serif" font-size="11" font-weight="500" fill="${cls[2]}" text-anchor="middle" x="${x+40}" y="${y+20}">${i+1}</text>`;
+    out += `<text font-family="-apple-system,sans-serif" font-size="10" fill="${cls[1]}" text-anchor="middle" x="${x+40}" y="${y+38}">${s}</text>`;
+  });
+
+  // Right: metrics and maturity
+  const rx=580;
+  out += `<text font-family="-apple-system,sans-serif" font-size="12" font-weight="500" fill="${C.g800}" x="${rx}" y="96">System Metrics</text>`;
+  const metrics2=[['Top-K','10 docs'],['Latency','<50 ms'],['Confidence','0–1 score'],['Coverage','BM25+ANN'],['Levels','5 maturity']];
+  metrics2.forEach(([l,v],i) => {
+    const y=108+i*44;
+    out += `<rect x="${rx}" y="${y}" width="230" height="34" rx="6" fill="${C.surface2||C.g50}" stroke="${C.border||C.g200}" stroke-width="0.3"/>`;
+    out += `<text font-family="-apple-system,sans-serif" font-size="11" fill="${C.g800}" x="${rx+12}" y="${y+21}">${l}</text>`;
+    out += `<text font-family="-apple-system,sans-serif" font-size="12" font-weight="500" fill="${C.b800}" text-anchor="end" x="${rx+218}" y="${y+21}">${v}</text>`;
+  });
+
+  // Bottom bar: tech badges
+  const techs=['Python 3.11','NumPy','dataclasses','pytest','FastAPI','asyncio','typing','Vector Index','Score Fusion','Top-K Gate','Evidence Package'];
+  const bcolors=[C.o600,C.b600,C.t600,C.a600,C.p600,C.g600,C.g400,C.b800,C.t800,C.p800,C.o800];
+  const bgcolors=[C.o50,C.b50,C.t50,C.a50,C.p50,C.g50,C.g50,C.b50,C.t50,C.p50,C.o50];
+  let bx2=20; const by=470;
+  techs.forEach((t,i) => {
+    const tw=t.length*7+16;
+    out += `<rect x="${bx2}" y="${by}" width="${tw}" height="22" rx="4" fill="${bgcolors[i]}" stroke="${bcolors[i]}" stroke-width="0.3"/>`;
+    out += `<text font-family="-apple-system,sans-serif" font-size="10" font-weight="500" fill="${bcolors[i]}" x="${bx2+8}" y="${by+14}">${t}</text>`;
+    bx2+=tw+6;
+    if (bx2>780) { bx2=20; }
+  });
+
+  // Footer
+  out += `<line x1="20" y1="510" x2="820" y2="510" stroke="${C.g200}" stroke-width="0.5"/>`;
+  out += `<text font-family="-apple-system,sans-serif" font-size="10" fill="${C.g600}" x="20" y="528">Enterprise Digital Twin &amp; Decision Intelligence Platform · Week 9 · Knowledge Intelligence</text>`;
+  out += `<text font-family="-apple-system,sans-serif" font-size="10" fill="${C.g600}" text-anchor="end" x="820" y="528">github.com/enterprise-dt · IEEE-ready · Portfolio-quality</text>`;
+
+  return svgWrap(548, out, 'Week 9 Flagship Poster', 'Complete one-page research poster for Week 9');
+}
+
+// ─────────────────────────────────────────────
+// RENDER ENGINE
+// ─────────────────────────────────────────────
+const renderers = {
+  masterArch, knowledgeLayer, kbArch, docLifecycle,
+  vectorPipeline, vectorSearch, similarityMetrics, hybridRetrieval,
+  retrievalArch, evidenceHeatmap, knowledgeAgent, confidenceCalc,
+  execCopilot, execBriefing, citationGraph, decisionFlow,
+  capabilityRadar, maturityModel, techStack, flagshipPoster
+};
+
+const svgNames = ['masterArch','knowledgeLayer','kbArch','docLifecycle','vectorPipeline','vectorSearch','similarityMetrics','hybridRetrieval','retrievalArch','evidenceHeatmap','knowledgeAgent','confidenceCalc','execCopilot','execBriefing','citationGraph','decisionFlow','capabilityRadar','maturityModel','techStack','flagshipPoster'];
+
+// Build nav and pages
+const navTabs = document.getElementById('navTabs');
+const pagesDiv = document.getElementById('pages');
+
+figures.forEach((f,i) => {
+  // Nav tab
+  const tab = document.createElement('button');
+  tab.className = 'nav-tab' + (i===0?' active':'');
+  tab.textContent = `F${f.num}`;
+  tab.title = f.title;
+  tab.onclick = () => showPage(i);
+  navTabs.appendChild(tab);
+
+  // Page
+  const page = document.createElement('div');
+  page.className = 'page' + (i===0?' active':'');
+  page.id = `page-${i}`;
+
+  const svgName = svgNames[i];
+  let figBody = '';
+
+  if (svgName === 'capabilityRadar') {
+    figBody = buildRadar();
+  } else {
+    const fn = renderers[svgName];
+    figBody = fn ? fn() : `<p style="color:var(--text-muted)">Figure pending</p>`;
+  }
+
+  page.innerHTML = `
+    <div class="fig-card">
+      <div class="fig-meta">
+        <span class="fig-number">Figure ${f.num} of 20</span>
+        <h2 class="fig-title">${f.title}</h2>
+      </div>
+      <p class="fig-objective"><strong>Objective:</strong> ${f.objective}</p>
+      <div class="fig-body">${figBody}</div>
+      <div class="fig-interp"><strong>Business interpretation:</strong> ${f.interp}</div>
+    </div>
+  `;
+  pagesDiv.appendChild(page);
+});
+
+function showPage(idx) {
+  document.querySelectorAll('.page').forEach((p,i) => p.classList.toggle('active', i===idx));
+  document.querySelectorAll('.nav-tab').forEach((t,i) => t.classList.toggle('active', i===idx));
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+// ─────────────────────────────────────────────
+// F17: Radar chart (Chart.js)
+// ─────────────────────────────────────────────
+function buildRadar() {
+  return `
+<div class="legend" style="margin-bottom:12px">
+  <span class="legend-item"><span class="legend-dot" style="background:#534AB7"></span>Week 9</span>
+  <span class="legend-item"><span class="legend-dot" style="background:#888780;opacity:0.6"></span>Week 8</span>
+</div>
+<div class="chart-wrap"><canvas id="radarCanvas" role="img" aria-label="Radar chart comparing Week 8 and Week 9 platform capabilities across six axes">Capability comparison radar: Week 9 adds Knowledge Intelligence (9/10) and Executive Copilot (8/10) over Week 8 baseline.</canvas></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"><\/script>
+<script>
+(function() {
+  function init() {
+    if (!window.Chart) { setTimeout(init, 100); return; }
+    new Chart(document.getElementById('radarCanvas'), {
+      type: 'radar',
+      data: {
+        labels: ['Prediction','Simulation','Decision Intelligence','Agentic AI','Knowledge Intelligence','Executive Copilot'],
+        datasets: [
+          {
+            label: 'Week 9',
+            data: [8,7,9,8,9,8],
+            borderColor: '#534AB7',
+            backgroundColor: 'rgba(83,74,183,0.15)',
+            borderWidth: 2,
+            pointBackgroundColor: '#534AB7',
+            pointRadius: 4
+          },
+          {
+            label: 'Week 8',
+            data: [8,7,8,7,3,2],
+            borderColor: '#888780',
+            backgroundColor: 'rgba(136,135,128,0.08)',
+            borderWidth: 1.5,
+            borderDash: [4,3],
+            pointBackgroundColor: '#888780',
+            pointRadius: 3
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+          r: {
+            min: 0, max: 10,
+            ticks: { stepSize: 2, font: { size: 11 }, color: '#898781', backdropColor: 'transparent' },
+            grid: { color: 'rgba(136,135,128,0.2)' },
+            pointLabels: { font: { size: 12 }, color: '#52514e' }
+          }
+        },
+        plugins: { legend: { display: false } }
+      }
+    });
+  }
+  init();
+})();
+<\/script>`;
+}
+</script>
+</body>
+</html>
