@@ -1,0 +1,38 @@
+# Version control & CI
+.git
+.github
+.gitignore
+
+# Python caches & artefacts
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+coverage.xml
+htmlcov/
+dist/
+build/
+
+# Local environments
+.venv/
+venv/
+env/
+.env
+.env.*
+!.env.example
+
+# Internal tooling not shipped in images
+_validation/
+
+# Editor / OS noise
+.idea/
+.vscode/
+*.swp
+.DS_Store
+
+# Documentation & tests are not required in the production runtime image
+docs/
+tests/

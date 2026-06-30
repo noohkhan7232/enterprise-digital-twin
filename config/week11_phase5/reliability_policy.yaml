@@ -1,0 +1,56 @@
+# Reliability, SLO and incident policy (Week 11 Phase 5).
+version: "11.5.0"
+
+reliability:
+  score_weights:
+    availability: 0.5
+    success_rate: 0.5
+  operational_risk_threshold: 0.25
+  minimum_score: 0.95
+
+slos:
+  - name: availability
+    sli_type: AVAILABILITY
+    target: 0.99
+    window_seconds: 2592000
+    comparison: gte
+  - name: latency_p95
+    sli_type: LATENCY
+    target: 250.0
+    window_seconds: 3600
+    comparison: lte
+  - name: error_rate
+    sli_type: ERROR_RATE
+    target: 0.01
+    window_seconds: 3600
+    comparison: lte
+  - name: freshness
+    sli_type: FRESHNESS
+    target: 300.0
+    window_seconds: 3600
+    comparison: lte
+
+error_budget:
+  burn_rate_alert: 2.0
+  exhaustion_action: freeze_releases
+
+incident_policy:
+  severities: [SEV1, SEV2, SEV3, SEV4]
+  auto_postmortem_on_resolve: true
+  require_root_cause: true
+  require_corrective_actions: true
+
+capacity:
+  headroom: 0.25
+  horizon_steps: 12
+  strategies: [linear, compound]
+
+production_readiness:
+  thresholds:
+    reliability: 0.95
+    coverage: 0.85
+    documentation: 3
+  levels:
+    not_ready_below: 60
+    conditional_below: 80
+    ready_below: 95

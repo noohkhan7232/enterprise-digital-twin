@@ -1,0 +1,26 @@
+# Enterprise Observability configuration (Week 11 Phase 5).
+# Consumed by the metrics, tracing and operations-dashboard subsystems.
+version: "11.5.0"
+
+metrics:
+  categories:
+    - application
+    - inference
+    - workflow
+    - scheduler
+    - deployment
+    - cicd
+    - monitoring
+    - business
+  percentiles: [50, 95, 99]
+  rolling_window_size: 100
+
+tracing:
+  enabled: true
+  sample_rate: 1.0
+  max_spans_per_trace: 512
+  critical_path: true
+
+dashboard:
+  refresh_seconds: 30
+  executive_summary: true

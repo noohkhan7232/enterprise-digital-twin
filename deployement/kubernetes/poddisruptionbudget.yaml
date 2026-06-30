@@ -1,0 +1,13 @@
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: edt-pdb
+  namespace: enterprise-digital-twin
+  labels:
+    app.kubernetes.io/name: enterprise-digital-twin
+spec:
+  minAvailable: 2
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: enterprise-digital-twin
+      app.kubernetes.io/component: api

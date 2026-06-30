@@ -1,0 +1,29 @@
+# syntax=docker/dockerfile:1.7
+# ----------------------------------------------------------------------------
+# Development image: single stage, includes test/dev tooling, runs as non-root.
+# Source is bind-mounted at runtime (see docker-compose.yml) for fast iteration.
+# ----------------------------------------------------------------------------
+FROM python:3.12-slim
+
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PYTHONPATH=/app/src:/app/scripts \
+    APP_ENV=development \
+    APP_PORT=8080
+
+WORKDIR /app
+
+RUN apt-get update \
+    && apt-get install --no-install-recommends -y build-essential curl \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN pip install --no-cache-dir "numpy>=2.0,<3.0" "PyYAML>=6.0,<7.0" pytest pytest-cov
+
+RUN groupadd --gid 10001 app \
+    && useradd --uid 10001 --gid app --create-home --shell /bin/bash app
+USER app:app
+
+EXPOSE 8080
+
+ENTRYPOINT ["/bin/bash", "-lc"]
+CMD ["python -m pytest -q || true; sleep infinity"]

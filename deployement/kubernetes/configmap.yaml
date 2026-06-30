@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: edt-config
+  namespace: enterprise-digital-twin
+  labels:
+    app.kubernetes.io/name: enterprise-digital-twin
+data:
+  APP_ENV: "production"
+  APP_PORT: "8080"
+  PYTHONPATH: "/app/src:/app/scripts"
+  HEALTH_ENDPOINT: "http://127.0.0.1:8080/health"
+  LOG_LEVEL: "INFO"

@@ -1,0 +1,24 @@
+# Structured logging configuration (Week 11 Phase 5).
+version: "11.5.0"
+
+logging:
+  format: json
+  min_severity: INFO
+  include_correlation_id: true
+  include_request_id: true
+  include_workflow_id: true
+  include_audit_ref: true
+  default_context:
+    service: enterprise-digital-twin
+    component: observability
+
+severities:
+  - DEBUG
+  - INFO
+  - WARNING
+  - ERROR
+  - CRITICAL
+
+audit:
+  enabled: true
+  link_field: audit_ref

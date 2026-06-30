@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: edt-service
+  namespace: enterprise-digital-twin
+  labels:
+    app.kubernetes.io/name: enterprise-digital-twin
+spec:
+  type: ClusterIP
+  selector:
+    app.kubernetes.io/name: enterprise-digital-twin
+    app.kubernetes.io/component: api
+  ports:
+    - name: http
+      port: 80
+      targetPort: http
+      protocol: TCP

@@ -1,0 +1,45 @@
+# Production compose: built runtime image, health checks, JSON logging,
+# read-only root filesystem, resource limits, hardened restart policy.
+# Run from this directory:  docker compose -f docker-compose.prod.yml up -d
+services:
+  app:
+    build:
+      context: ../..
+      dockerfile: deployment/docker/Dockerfile
+    image: enterprise-digital-twin:latest
+    container_name: edt-app
+    environment:
+      APP_ENV: production
+      APP_PORT: "8080"
+      HEALTH_ENDPOINT: http://127.0.0.1:8080/health
+    ports:
+      - "8080:8080"
+    healthcheck:
+      test: ["CMD", "python", "/app/deployment/scripts/health_check.py", "--root", "/app", "--quiet"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "5"
+    # Harden the runtime: read-only root, no privilege escalation, dropped caps.
+    read_only: true
+    tmpfs:
+      - /tmp
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    restart: on-failure:5
+    stop_grace_period: 30s
+    deploy:
+      resources:
+        limits:
+          cpus: "1.00"
+          memory: 1024M
+        reservations:
+          cpus: "0.25"
+          memory: 256M

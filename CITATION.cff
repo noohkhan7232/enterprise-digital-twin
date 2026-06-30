@@ -1,0 +1,42 @@
+cff-version: 1.2.0
+message: "If you use this software or reference this work, please cite it as below."
+title: "Enterprise Digital Twin & Decision Intelligence Platform"
+abstract: >-
+  An integrated, production-engineered platform that unifies digital twins, predictive
+  intelligence, agentic AI, retrieval-augmented knowledge and workflow orchestration behind a
+  single governance, deployment and observability fabric. The platform is organised as a
+  ten-layer, composition-based architecture built additively, with production-engineering
+  subsystems (MLOps, monitoring, CI/CD, deployment and observability) verified by a deterministic
+  automated test suite.
+type: software
+version: "1.0.0"
+date-released: "2026-06-30"
+license: MIT
+authors:
+  - given-names: A.
+    family-names: Author
+  - given-names: B.
+    family-names: Contributor
+  - given-names: C.
+    family-names: Reviewer
+repository-code: "https://github.com/<org>/enterprise-digital-twin"
+url: "https://github.com/<org>/enterprise-digital-twin"
+keywords:
+  - digital twin
+  - decision intelligence
+  - MLOps
+  - retrieval-augmented generation
+  - agentic AI
+  - observability
+  - site reliability engineering
+  - software architecture
+  - industrial informatics
+  - Industry 4.0
+references:
+  - type: article
+    title: "An Integrated Architecture for Enterprise Digital Twins and Decision Intelligence"
+    authors:
+      - given-names: A.
+        family-names: Author
+    year: 2026
+    notes: "Companion research paper; see docs/week12/research_paper.md and references.bib."

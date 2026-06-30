@@ -1,0 +1,25 @@
+# Development compose: bind-mounted source, dev image, permissive restart.
+# Run from this directory:  docker compose up --build
+services:
+  app:
+    build:
+      context: ../..
+      dockerfile: deployment/docker/Dockerfile.dev
+    image: enterprise-digital-twin:dev
+    container_name: edt-app-dev
+    environment:
+      APP_ENV: development
+      APP_PORT: "8080"
+      PYTHONPATH: /app/src:/app/scripts
+      HEALTH_ENDPOINT: http://127.0.0.1:8080/health
+    ports:
+      - "8080:8080"
+    volumes:
+      # Live source mount for fast iteration; caches kept out of the container.
+      - ../../src:/app/src
+      - ../../scripts:/app/scripts
+      - ../../configs:/app/configs
+      - ../../tests:/app/tests
+      - ../../deployment:/app/deployment
+    restart: unless-stopped
+    stop_grace_period: 30s
