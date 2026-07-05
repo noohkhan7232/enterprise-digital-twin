@@ -43,8 +43,13 @@ from pathlib import Path
 from unittest.mock import MagicMock, patch
 
 import numpy as np
-import pandas as pd
 import pytest
+
+# src.training.dataloader/dataset require psutil, pandas and scikit-learn;
+# skip collection in minimal environments (e.g. the dev container).
+pd = pytest.importorskip("pandas")
+pytest.importorskip("psutil")
+pytest.importorskip("sklearn")
 
 # ---------------------------------------------------------------------------
 # Project root on sys.path

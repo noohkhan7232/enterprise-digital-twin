@@ -16,7 +16,7 @@ without modifying its predecessors, and the test suite re-verifies every prior l
 runs. Together these keep the dependency graph acyclic and allow any layer to be tested, replaced
 or extended in isolation.
 
-![Figure 1 — Platform architecture](figures/architecture_overview.png)
+<!-- ![Figure 1 — Platform architecture](figures/architecture_overview.png) (figure asset pending) -->
 *Figure 1. Layered capability and production-engineering subsystems with cross-cutting
 governance. **[image placeholder]***
 
@@ -113,5 +113,5 @@ computes reliability and service-level compliance from live signals, the capacit
 resource exhaustion, and the incident manager governs response — closing the loop from deployment
 back to operational decision-making.
 
-![Figure 2 — Deployment topology](figures/deployment_topology.png)
+<!-- ![Figure 2 — Deployment topology](figures/deployment_topology.png) (figure asset pending) -->
 *Figure 2. Kubernetes deployment topology. **[image placeholder]***

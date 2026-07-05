@@ -58,7 +58,7 @@ jobs:
       - name: Release Validation
         run: |
           COV=$(cat coverage_value.txt)
-          python scripts/release_validator.py --root . \
+          python scripts/week_11_phase_3/release_validator.py --root . \
             --version "${{ steps.version.outputs.version }}" \
             --notes "Automated release ${{ steps.version.outputs.version }}" \
             --coverage "$COV" \
@@ -70,7 +70,7 @@ jobs:
 
       - name: Deployment Readiness
         run: |
-          python scripts/deployment_readiness.py --root . --output deployment_report.json
+          python scripts/week_11_phase_3/deployment_readiness.py --root . --output deployment_report.json
 
       - name: Artifact Packaging
         run: |

@@ -479,7 +479,10 @@ class RepositoryValidator:
         src = os.path.join(self.root, "src")
         if not os.path.isdir(src):
             return CheckResult("package_integrity", Status.WARNING, 0.0, "no src/ directory")
-        packages = [d for d in sorted(os.listdir(src)) if os.path.isdir(os.path.join(src, d))]
+        # Bytecode caches are build artifacts, not packages; compileall/pytest
+        # create them before this check runs (locally and in CI).
+        packages = [d for d in sorted(os.listdir(src))
+                    if os.path.isdir(os.path.join(src, d)) and d != "__pycache__"]
         if not packages:
             return CheckResult("package_integrity", Status.WARNING, 0.0, "no packages under src/")
         with_init = [p for p in packages if os.path.exists(os.path.join(src, p, "__init__.py"))]

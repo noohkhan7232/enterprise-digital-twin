@@ -9,7 +9,7 @@ abstract: >-
   subsystems (MLOps, monitoring, CI/CD, deployment and observability) verified by a deterministic
   automated test suite.
 type: software
-version: "1.0.0"
+version: "1.0.1"
 date-released: "2026-06-30"
 license: MIT
 authors:
@@ -19,8 +19,8 @@ authors:
     family-names: Contributor
   - given-names: C.
     family-names: Reviewer
-repository-code: "https://github.com/<org>/enterprise-digital-twin"
-url: "https://github.com/<org>/enterprise-digital-twin"
+repository-code: "https://github.com/noohkhan7232/wind-turbine-acoustics"
+url: "https://github.com/noohkhan7232/wind-turbine-acoustics"
 keywords:
   - digital twin
   - decision intelligence

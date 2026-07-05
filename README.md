@@ -4,15 +4,13 @@
 
 **Many industrial-AI capabilities, operated as one coherent, governable, observable system.**
 
-<!-- Badges are placeholders; replace URLs and links on public release. -->
-![release](https://img.shields.io/badge/release-v1.0.0-blue)
+![release](https://img.shields.io/badge/release-v1.0.1-blue)
 ![license](https://img.shields.io/badge/license-MIT-green)
 ![python](https://img.shields.io/badge/python-3.12-blue)
 ![tests](https://img.shields.io/badge/tests-passing-brightgreen)
 ![docs](https://img.shields.io/badge/docs-complete-blue)
 ![research](https://img.shields.io/badge/research-IEEE--style%20paper-lightgrey)
 ![portfolio](https://img.shields.io/badge/portfolio-complete-lightgrey)
-![stars](https://img.shields.io/badge/stars-placeholder-lightgrey)
 
 *A ten-layer, composition-based platform unifying digital twins, predictive intelligence, agentic AI,
 retrieval-augmented knowledge and workflow orchestration on a verified production-engineering substrate.*
@@ -50,7 +48,7 @@ The platform was built additively over twelve weeks — no layer modifies its pr
 production-engineering substrate is verified by a deterministic, framework-agnostic automated test
 suite. The project's contribution is framed honestly: it is an engineering integration, architecture
 and implementation effort, not a claim of algorithmic novelty. Its claims are correspondingly bounded —
-measured repository statistics live in the [release audit](release/repository_statistics.md),
+measured repository statistics live in the [release audit](week12_phase5_release/repository_statistics.md),
 service-level values are configured runtime targets rather than benchmarks, and readiness is a
 transparent self-assessment rather than a certification.
 
@@ -233,8 +231,11 @@ invariant that holds the system together: **every boundary is crossed by an immu
 value object** — never shared mutable state, never a call into another subsystem's internals. The
 dependency graph is therefore acyclic, and every layer is exercisable in isolation.
 
+<!--
 ![Platform architecture](docs/figures/architecture_overview.png)
 *Figure 1 — Ten-layer platform architecture with cross-cutting governance. **[image placeholder]***
+(figure asset pending; intentionally hidden for public release)
+-->
 
 ### 8.1 Digital Twin Layer
 
@@ -278,8 +279,11 @@ stage promotion; a content-addressed artifact store; a reproducibility engine bi
 revision and environment; and a lineage graph linking runs, datasets, artifacts and models. "How was
 this result produced?" becomes a graph traversal.
 
+<!--
 ![MLOps lineage](docs/figures/mlops_lineage.png)
 *Figure 2 — MLOps provenance and lineage. **[image placeholder]***
+(figure asset pending; intentionally hidden for public release)
+-->
 
 ### 8.7 Production Monitoring
 
@@ -302,8 +306,11 @@ default-deny network policy, pod disruption budget, durable storage. One **deter
 backs the container, the probes and every script — "healthy" is defined once. Rollback reverts and
 re-verifies health automatically.
 
+<!--
 ![Deployment topology](docs/figures/deployment_topology.png)
 *Figure 3 — Kubernetes deployment topology. **[image placeholder]***
+(figure asset pending; intentionally hidden for public release)
+-->
 
 ### 8.10 Enterprise Observability
 
@@ -313,8 +320,11 @@ timeline and critical-path reconstruction; structured, correlated logging; a rel
 incident lifecycle with postmortems; deterministic capacity forecasting; an operations dashboard; and
 the ten-area production-readiness assessment. Integrates purely by composition.
 
+<!--
 ![Observability](docs/figures/observability_slo.png)
 *Figure 4 — Observability and SLO evaluation. **[image placeholder]***
+(figure asset pending; intentionally hidden for public release)
+-->
 
 ### 8.11 The Operational Loop
 
@@ -369,8 +379,8 @@ held together by immutable contracts and one dependency direction.
 ├── enterprise_mlops_architecture.png    Architecture figure (4K)
 ├── LICENSE                       MIT
 ├── CITATION.cff                  Citation metadata (CFF 1.2.0)
-├── CHANGELOG.md                  v1.0.0 changelog
-├── VERSION                       1.0.0
+├── CHANGELOG.md                  Changelog (current: v1.0.1)
+├── VERSION                       1.0.1
 ├── RELEASE_MANIFEST.md           Directory & deliverable manifest
 └── README.md                     This document
 ```
@@ -445,7 +455,7 @@ factory functions and value objects. Change localises.
 
 **Maintainability.** A designed property, not an accident: narrow boundaries, immutable contracts,
 minimal dependencies, co-located documentation, and a test suite that localises failures produce a low
-change-risk profile (assessed in [`validation/maintainability_assessment.md`](validation/maintainability_assessment.md)).
+change-risk profile (assessed in [`week12_phase4_validation/maintainability_assessment.md`](week12_phase4_validation/maintainability_assessment.md)).
 
 **Testability.** The sum of the above: inject the non-determinism, freeze the values, narrow the
 boundaries — and testing becomes cheap, portable and reliable.
@@ -470,7 +480,7 @@ modifying its predecessors, and the full test suite re-verifies every prior laye
 | **12** | **Research, Portfolio, Validation, Production Release**, five phases: IEEE-style research paper → GitHub & portfolio documentation → demonstration assets → engineering validation package → the v1.0.0 release and repository audit. |
 
 The journey is depicted in the repository's timeline figure and summarised in
-[`release/final_engineering_summary.md`](release/final_engineering_summary.md).
+[`week12_phase5_release/final_engineering_summary.md`](week12_phase5_release/final_engineering_summary.md).
 
 ---
 
@@ -481,8 +491,8 @@ orchestration paths.
 
 ```bash
 # Clone
-git clone https://github.com/<org>/enterprise-digital-twin.git
-cd enterprise-digital-twin
+git clone https://github.com/noohkhan7232/wind-turbine-acoustics.git
+cd wind-turbine-acoustics
 
 # Isolated environment
 python3 -m venv .venv
@@ -496,6 +506,9 @@ pip install pytest pytest-cov
 ```
 
 The runtime footprint is intentionally minimal — see the [technology stack](#10-technology-stack).
+The full research and machine-learning stack (audio processing, PyTorch, experiment tracking) used by
+the acoustic research lineage is pinned separately in [`requirements.txt`](requirements.txt):
+`pip install -r requirements.txt`.
 
 ---
 
@@ -514,9 +527,9 @@ PYTHONPATH=src python3 -c "from observability import main; main(['readiness'])"
 # 3. Run one demo twice — outputs are byte-identical (determinism by construction)
 ```
 
-From here: [`docs/week12/quick_start.md`](docs/week12/quick_start.md) for the clone-to-Kubernetes path,
-[`docs/week12/developer_guide.md`](docs/week12/developer_guide.md) to contribute, and
-[`docs/week12/deployment_guide.md`](docs/week12/deployment_guide.md) for operations.
+From here: [`docs/week 12/week12_phase2/quick_start.md`](docs/week%2012/week12_phase2/quick_start.md) for the clone-to-Kubernetes path,
+[`docs/week 12/week12_phase2/developer_guide.md`](docs/week%2012/week12_phase2/developer_guide.md) to contribute, and
+[`docs/week 12/week12_phase2/deployment_guide.md`](docs/week%2012/week12_phase2/deployment_guide.md) for operations.
 
 ---
 
@@ -551,7 +564,7 @@ PYTHONPATH=src pytest tests/test_metrics_engine.py -q
 
 Every test is deterministic and framework-agnostic — standard assertions and parameterisation only; no
 fixtures, no network, no external services. See [Testing Strategy](#24-testing-strategy) for the
-philosophy and [`release/repository_statistics.md`](release/repository_statistics.md) for measured
+philosophy and [`week12_phase5_release/repository_statistics.md`](week12_phase5_release/repository_statistics.md) for measured
 counts.
 
 ---
@@ -589,7 +602,7 @@ The ten manifests provide: a restricted-PSA namespace, config and a secret **tem
 are supplied out-of-band), a rolling deployment with probes and hardened security context, a service,
 TLS-terminated ingress, autoscaling, default-deny network policy, a pod disruption budget and durable
 storage. One deterministic health check defines "healthy" across the container, the probes and every
-script. Full procedure: [`docs/week12/deployment_guide.md`](docs/week12/deployment_guide.md).
+script. Full procedure: [`docs/week 12/week12_phase2/deployment_guide.md`](docs/week%2012/week12_phase2/deployment_guide.md).
 
 ---
 
@@ -597,7 +610,7 @@ script. Full procedure: [`docs/week12/deployment_guide.md`](docs/week12/deployme
 
 > **Integrity rule.** This README does not restate repository numbers. Statistics are only reported
 > where they are measured and auditable — in
-> [`release/repository_statistics.md`](release/repository_statistics.md), which documents the
+> [`week12_phase5_release/repository_statistics.md`](week12_phase5_release/repository_statistics.md), which documents the
 > collection methodology, records the measured values for the v1.0.0 audit, and leaves
 > version-control–derived fields blank because git history is not initialised in this snapshot.
 
@@ -635,14 +648,14 @@ architecture and methodology:
 
 > *An Integrated Architecture for Enterprise Digital Twins and Decision Intelligence: Unifying
 > Predictive, Agentic, Retrieval-Augmented and Production-Engineering Subsystems* —
-> [`docs/week12/research_paper.md`](docs/week12/research_paper.md) *(PDF placeholder — to be linked on
+> [`docs/week 12/research_paper.md`](docs/week%2012/research_paper.md) *(PDF placeholder — to be linked on
 > publication)*
 
 The paper spans 22 sections: problem statement, literature review, research gap, the full architecture,
 per-layer treatments, methodology, evaluation, honestly framed engineering contributions, business
 applications, limitations and future directions. It is accompanied by
-[`references.bib`](docs/week12/references.bib) (real, well-known references only),
-[`appendices.md`](docs/week12/appendices.md) and [`glossary.md`](docs/week12/glossary.md). The
+[`references.bib`](docs/week%2012/references.bib) (real, well-known references only),
+[`appendices.md`](docs/week%2012/appendices.md) and [`glossary.md`](docs/week%2012/glossary.md). The
 contributions are framed as **engineering integration, architecture and implementation** — the paper
 explicitly does not claim algorithmic novelty or report fabricated experimental numbers.
 
@@ -655,9 +668,9 @@ discipline as the rest of the repository:
 
 | Package | Contents |
 |---------|----------|
-| [`validation/`](validation/) | Engineering validation (15 rated dimensions) · benchmark methodology · scalability analysis · architecture review · maintainability · reliability · **architecture-level** security review (explicitly not a penetration test) · technical-debt analysis · production-readiness review |
-| [`benchmarks/`](benchmarks/) | Twelve-scenario benchmark suite · step-by-step execution plan · **empty** results template (the only permitted placeholders) · qualitative comparison matrix (no named products) |
-| [`reports/`](reports/) | Ten-dimension engineering scorecard · repository health report · release-readiness report |
+| [`week12_phase4_validation/`](week12_phase4_validation/) | Engineering validation (15 rated dimensions) · benchmark methodology · scalability analysis · architecture review · maintainability · reliability · **architecture-level** security review (explicitly not a penetration test) · technical-debt analysis · production-readiness review |
+| [`week12_phase4_benchmarks/`](week12_phase4_benchmarks/) | Twelve-scenario benchmark suite · step-by-step execution plan · **empty** results template (the only permitted placeholders) · qualitative comparison matrix (no named products) |
+| [`week12_phase4_reports/`](week12_phase4_reports/) | Ten-dimension engineering scorecard · repository health report · release-readiness report |
 
 Headline findings: strong ratings across architecture, testing, documentation, deployment,
 maintainability, observability, MLOps and CI/CD, with reliability and security rated solid — bounded by
@@ -671,13 +684,13 @@ checklist).
 
 | Asset | Audience & purpose |
 |-------|--------------------|
-| [`demo/executive_demo_script.md`](demo/executive_demo_script.md) | 10–12 min outcome-focused walkthrough for executives and CTOs |
-| [`demo/technical_demo_script.md`](demo/technical_demo_script.md) | 20–25 min engineering deep-dive with live, deterministic terminal segments |
-| [`demo/live_demo_checklist.md`](demo/live_demo_checklist.md) | Pre-flight, backup and recovery procedures for live delivery |
-| [`demo/demo_storyboard.md`](demo/demo_storyboard.md) | Twelve scenes — speaker, screen, talking points, expected outcome |
-| [`case_study/`](case_study/) | Enterprise case study (realistic plant scenario), business case (value levers + quantification methodology, no invented ROI), technical case (design decisions under scrutiny) |
-| [`video/`](video/) | Timed narration script and full recording plan for a 12–15 min walkthrough |
-| [`presentation/`](presentation/) | 15-slide executive deck, 20-slide technical deck, speaker notes, layer-by-layer architecture walkthrough |
+| [`week12_phase3_demo/executive_demo_script.md`](week12_phase3_demo/executive_demo_script.md) | 10–12 min outcome-focused walkthrough for executives and CTOs |
+| [`week12_phase3_demo/technical_demo_script.md`](week12_phase3_demo/technical_demo_script.md) | 20–25 min engineering deep-dive with live, deterministic terminal segments |
+| [`week12_phase3_demo/live_demo_checklist.md`](week12_phase3_demo/live_demo_checklist.md) | Pre-flight, backup and recovery procedures for live delivery |
+| [`week12_phase3_demo/demo_storyboard.md`](week12_phase3_demo/demo_storyboard.md) | Twelve scenes — speaker, screen, talking points, expected outcome |
+| [`week12_phase3_case_study/`](week12_phase3_case_study/) | Enterprise case study (realistic plant scenario), business case (value levers + quantification methodology, no invented ROI), technical case (design decisions under scrutiny) |
+| [`week12_phase3_video/`](week12_phase3_video/) | Timed narration script and full recording plan for a 12–15 min walkthrough |
+| [`week12_phase3_presentation/`](week12_phase3_presentation/) | 15-slide executive deck, 20-slide technical deck, speaker notes, layer-by-layer architecture walkthrough |
 
 All demonstration material observes the same rule as the code: reproducible behaviour on stage, and no
 fabricated figures anywhere in the narrative.
@@ -720,14 +733,14 @@ contracts — which is what makes additive construction safe.
 
 No coverage percentage is quoted here: coverage is meaningful only when measured, and measured figures
 belong in the audited statistics document, not prose. Measured test counts are in
-[`release/repository_statistics.md`](release/repository_statistics.md).
+[`week12_phase5_release/repository_statistics.md`](week12_phase5_release/repository_statistics.md).
 
 ---
 
 ## 25. Security
 
 Security posture is documented honestly in
-[`validation/security_review.md`](validation/security_review.md) — an **architecture-level review,
+[`week12_phase4_validation/security_review.md`](week12_phase4_validation/security_review.md) — an **architecture-level review,
 explicitly not a penetration test**.
 
 Highlights of the built-in posture: no secrets committed (the Kubernetes secret ships as a clearly
@@ -739,7 +752,7 @@ dependency-scan workflow; structured, correlated, audit-linked logging; and stru
 the MLOps lineage graph and incident timelines.
 
 Before exposure in an untrusted environment, complete the bounded hardening list in
-[`release/production_release_checklist.md`](release/production_release_checklist.md): external secrets
+[`week12_phase5_release/production_release_checklist.md`](week12_phase5_release/production_release_checklist.md): external secrets
 management, image scanning, hash-pinned dependencies and SBOM, an authentication/authorisation layer at
 the ingress, admission policy and least-privilege RBAC, and an independent audit.
 
@@ -748,14 +761,14 @@ the ingress, admission policy and least-privilege RBAC, and an independent audit
 ## 26. Performance Validation
 
 **This repository reports no benchmark numbers, by design.** Runtime performance is addressed as
-*methodology*: [`validation/benchmark_methodology.md`](validation/benchmark_methodology.md) defines
+*methodology*: [`week12_phase4_validation/benchmark_methodology.md`](week12_phase4_validation/benchmark_methodology.md) defines
 repeatable procedures — environment capture, warm/cold separation, fixed repetitions, median and P95
 reporting — for cold start, memory, CPU, inference and workflow latency, deployment time, recovery
 time, health-check time, CI/CD duration and repository build time.
-[`benchmarks/benchmark_suite.md`](benchmarks/benchmark_suite.md) defines twelve scenarios (BM-01 –
-BM-12), [`benchmarks/benchmark_execution_plan.md`](benchmarks/benchmark_execution_plan.md) specifies
+[`week12_phase4_benchmarks/benchmark_suite.md`](week12_phase4_benchmarks/benchmark_suite.md) defines twelve scenarios (BM-01 –
+BM-12), [`week12_phase4_benchmarks/benchmark_execution_plan.md`](week12_phase4_benchmarks/benchmark_execution_plan.md) specifies
 step-by-step execution with statistical handling and a reproducibility check, and
-[`benchmarks/benchmark_results_template.md`](benchmarks/benchmark_results_template.md) holds **empty**
+[`week12_phase4_benchmarks/benchmark_results_template.md`](week12_phase4_benchmarks/benchmark_results_template.md) holds **empty**
 tables to be populated only by measurement. A result without its environment and repetition count is
 not a result. SLO values are configured runtime targets and are never presented as measurements.
 
@@ -799,14 +812,14 @@ Full policy: [`.github/CONTRIBUTING.md`](.github/CONTRIBUTING.md) · conduct:
 
 If you reference this work, please cite it using the repository's [`CITATION.cff`](CITATION.cff)
 (GitHub renders a "Cite this repository" control from it). The companion research paper and its
-bibliography are in [`docs/week12/`](docs/week12/).
+bibliography are in [`docs/week 12/`](docs/week%2012/).
 
 ---
 
 ## 30. License
 
 Released under the [MIT License](LICENSE). Set the copyright holder line before public release (tracked
-in the [release checklist](release/production_release_checklist.md)).
+in the [release checklist](week12_phase5_release/production_release_checklist.md)).
 
 ---
 
@@ -816,7 +829,7 @@ This platform stands on established research and practice: digital twins and Ind
 and health management; decision intelligence; transformers, retrieval-augmented generation and
 language-model agents; the MLOps and production-ML literature; containers, orchestration and site
 reliability engineering; and the software-architecture canon. Full attributions — real references
-only — are in the research paper's [bibliography](docs/week12/references.bib).
+only — are in the research paper's [bibliography](docs/week%2012/references.bib).
 
 ---
 

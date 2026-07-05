@@ -61,7 +61,7 @@ reaching into their internals, which keeps the dependency graph acyclic and ever
 independently testable. See [`architecture_overview.md`](architecture_overview.md) for the full
 treatment.
 
-![Figure 1 — Platform architecture](docs/figures/architecture_overview.png)
+<!-- ![Figure 1 — Platform architecture](docs/figures/architecture_overview.png) (figure asset pending) -->
 *Figure 1. Enterprise platform architecture. **[image placeholder]***
 
 ## Technology Stack
@@ -113,8 +113,8 @@ treatment.
 
 ```bash
 # Clone
-git clone https://github.com/<org>/enterprise-digital-twin.git
-cd enterprise-digital-twin
+git clone https://github.com/noohkhan7232/wind-turbine-acoustics.git
+cd wind-turbine-acoustics
 
 # Create an isolated environment
 python3 -m venv .venv && source .venv/bin/activate
@@ -173,10 +173,10 @@ See [`deployment_guide.md`](deployment_guide.md) for the full procedure.
 
 ## Screenshots
 
-![Operations dashboard](docs/figures/operations_dashboard.png)
+<!-- ![Operations dashboard](docs/figures/operations_dashboard.png) (figure asset pending) -->
 *Operations dashboard executive summary. **[image placeholder]***
 
-![Readiness report](docs/figures/readiness_report.png)
+<!-- ![Readiness report](docs/figures/readiness_report.png) (figure asset pending) -->
 *Production-readiness assessment. **[image placeholder]***
 
 ## Architecture Figures
@@ -192,8 +192,8 @@ documentation. Figure files are placeholders pending export.
 ## Research Paper
 
 A companion IEEE-style research paper describes the architecture and methodology:
-[`research_paper.md`](research_paper.md). See also [`references.bib`](references.bib),
-[`appendices.md`](appendices.md) and [`glossary.md`](glossary.md).
+[`research_paper.md`](../research_paper.md). See also [`references.bib`](../references.bib),
+[`appendices.md`](../appendices.md) and [`glossary.md`](../glossary.md).
 
 ## Performance Highlights
 
@@ -245,11 +245,11 @@ prediction-accuracy) evaluation. See the research paper for detail.
 
 ## License
 
-Released under the [MIT License](LICENSE).
+Released under the [MIT License](../../../LICENSE).
 
 ## Citation
 
-If you reference this work, please cite it using [`CITATION.cff`](CITATION.cff).
+If you reference this work, please cite it using [`CITATION.cff`](../../../CITATION.cff).
 
 ## Acknowledgements
 

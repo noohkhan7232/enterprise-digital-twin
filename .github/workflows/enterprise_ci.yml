@@ -40,7 +40,7 @@ jobs:
 
       - name: Repository Validation
         run: |
-          python scripts/validate_repository.py --root . --output repository_report.json
+          python scripts/week_11_phase_3/validate_repository.py --root . --output repository_report.json
 
       - name: Pytest
         env:
@@ -60,7 +60,7 @@ jobs:
       - name: Quality Gate
         run: |
           COV=$(cat coverage_value.txt)
-          python scripts/quality_gate.py --root . --coverage "$COV" --output quality_report.json
+          python scripts/week_11_phase_3/quality_gate.py --root . --coverage "$COV" --output quality_report.json
 
       - name: Monitoring Validation
         env:
@@ -78,7 +78,7 @@ jobs:
 
       - name: Build Validation
         run: |
-          python scripts/deployment_readiness.py --root . --output deployment_report.json
+          python scripts/week_11_phase_3/deployment_readiness.py --root . --output deployment_report.json
 
       - name: Summary
         if: always()

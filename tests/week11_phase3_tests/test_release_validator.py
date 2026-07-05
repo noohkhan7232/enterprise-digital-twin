@@ -9,7 +9,8 @@ import tempfile
 
 import pytest
 
-sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "scripts"))
+_REPO_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+sys.path.insert(0, os.path.join(_REPO_ROOT, "scripts", "week_11_phase_3"))
 
 from release_validator import (  # noqa: E402
     ReleaseContext, ReleaseValidator, SemanticVersion, load_release_policy, main,

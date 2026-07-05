@@ -19,8 +19,8 @@ The platform is built on a small number of invariants. Contributions are expecte
 ## Getting Started
 
 ```bash
-git clone https://github.com/<org>/enterprise-digital-twin.git
-cd enterprise-digital-twin
+git clone https://github.com/noohkhan7232/wind-turbine-acoustics.git
+cd wind-turbine-acoustics
 python3 -m venv .venv && source .venv/bin/activate
 pip install numpy pyyaml pytest pytest-cov
 ```

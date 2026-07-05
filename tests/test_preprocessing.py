@@ -22,7 +22,11 @@ from pathlib import Path
 
 import numpy as np
 import pytest
-import soundfile as sf
+
+# src.preprocessing.audio_loader requires librosa and soundfile; skip
+# collection in minimal environments (e.g. the dev container).
+sf = pytest.importorskip("soundfile")
+pytest.importorskip("librosa")
 
 from src.preprocessing.audio_loader import (
     FAULT_LABELS,

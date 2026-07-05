@@ -9,7 +9,8 @@ import tempfile
 
 import pytest
 
-sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "scripts"))
+_REPO_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+sys.path.insert(0, os.path.join(_REPO_ROOT, "scripts", "week_11_phase_3"))
 
 from quality_gate import QualityContext, QualityGate, load_quality_config, main  # noqa: E402
 from validate_repository import Status  # noqa: E402

@@ -36,8 +36,12 @@ import threading
 from pathlib import Path
 
 import numpy as np
-import pandas as pd
 import pytest
+
+# src.training.dataset requires pandas and scikit-learn; skip collection in
+# minimal environments (e.g. the dev container) instead of erroring.
+pd = pytest.importorskip("pandas")
+pytest.importorskip("sklearn")
 
 # ---------------------------------------------------------------------------
 # Ensure src/ is importable from any working directory

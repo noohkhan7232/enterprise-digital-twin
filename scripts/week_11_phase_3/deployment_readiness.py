@@ -38,6 +38,11 @@ def _read_if(root: str, *parts: str) -> str:
     return ""
 
 
+def _read_dockerfile(root: str) -> str:
+    """Read the repository Dockerfile from the root or the deployment layout."""
+    return _read_if(root, "Dockerfile") or _read_if(root, "deployment", "docker", "Dockerfile")
+
+
 def _find_files(root: str, predicate) -> List[str]:
     matches: List[str] = []
     for dirpath, dirnames, filenames in os.walk(root):
@@ -66,7 +71,7 @@ class DeploymentReadiness:
 
     # -- checks ------------------------------------------------------------- #
     def check_docker(self) -> CheckResult:
-        content = _read_if(self.root, "Dockerfile")
+        content = _read_dockerfile(self.root)
         if not content:
             return CheckResult("docker_readiness", Status.FAIL, 0.0, "no Dockerfile")
         has_from = "FROM " in content
@@ -93,7 +98,7 @@ class DeploymentReadiness:
 
     def check_health_endpoints(self) -> CheckResult:
         signals = (
-            "HEALTHCHECK" in _read_if(self.root, "Dockerfile") or
+            "HEALTHCHECK" in _read_dockerfile(self.root) or
             _exists(self.root, "configs", "health.yaml") or
             any("livenessProbe" in _read_if(os.path.dirname(m), os.path.basename(m))
                 for m in _find_files(self.root, lambda n, f: n.endswith((".yaml", ".yml"))))
@@ -113,7 +118,7 @@ class DeploymentReadiness:
     def check_environment_variables(self) -> CheckResult:
         signals = (
             _exists(self.root, ".env.example") or _exists(self.root, ".env.template") or
-            "environment" in self.policy or "ENV " in _read_if(self.root, "Dockerfile"))
+            "environment" in self.policy or "ENV " in _read_dockerfile(self.root))
         return CheckResult("environment_variables", Status.PASS if signals else Status.WARNING,
                            1.0 if signals else 0.0,
                            "environment documented" if signals else "no environment template")

@@ -9,8 +9,8 @@ import tempfile
 
 import pytest
 
-sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
-                                "deployment", "scripts"))
+_REPO_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+sys.path.insert(0, os.path.join(_REPO_ROOT, "deployment", "scripts"))
 
 from health_check import (  # noqa: E402
     CheckResult, HealthChecker, HealthReport, HealthStatus, aggregate, default_probe, main,
@@ -327,8 +327,11 @@ def test_report_contains_ready_and_healthy_keys():
 # --------------------------------------------------------------------------- #
 # CLI
 # --------------------------------------------------------------------------- #
-def test_cli_healthy_returns_zero():
-    # No endpoint -> DEGRADED -> still ready -> exit 0.
+def test_cli_healthy_returns_zero(monkeypatch):
+    # No endpoint -> DEGRADED -> still ready -> exit 0. The CLI defaults
+    # --endpoint from HEALTH_ENDPOINT, so drop any ambient value (set e.g.
+    # inside the container) to keep the fixture repo self-contained.
+    monkeypatch.delenv("HEALTH_ENDPOINT", raising=False)
     with tempfile.TemporaryDirectory() as d:
         build(d)
         assert main(["--root", d, "--quiet"]) == 0

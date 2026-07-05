@@ -5,6 +5,21 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project
 adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.1] - 2026-07-04
+
+Production stabilization release. Repository hygiene only — no functional, architectural, or
+behavioural changes.
+
+### Changed
+
+- Consolidated all configuration under a single `configs/` root (formerly split across `config/`
+  and `configs/`).
+- Removed dead files identified by the repository audit (obsolete README copy, stale structure
+  dump, editor temp files, duplicate figure).
+- Fixed documentation asset naming typos ("Weak" → "Week", accidental spaces in filenames).
+- Extended `.gitignore` coverage (editor temp files, tool caches, Windows system files).
+- Committed missing package `__init__.py` files so fresh clones import correctly.
+
 ## [1.0.0] - 2026-06-30
 
 First public release. This release completes the platform's capability layers and its full
@@ -68,4 +83,5 @@ production-engineering subsystems are verified by 1,503 deterministic automated 
 - This release reports verified engineering properties and configured service-level targets rather
   than benchmark results; no synthetic performance figures are claimed.
 
-[1.0.0]: https://github.com/<org>/enterprise-digital-twin/releases/tag/v1.0.0
+[1.0.0]: https://github.com/noohkhan7232/wind-turbine-acoustics/releases/tag/v1.0.0
+[1.0.1]: https://github.com/noohkhan7232/wind-turbine-acoustics/releases/tag/v1.0.1

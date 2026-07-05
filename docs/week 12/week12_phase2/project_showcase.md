@@ -40,7 +40,7 @@ the AI functionality; the five production-engineering subsystems operate it:
 - **Deployment** packages the platform for zero-downtime, health-gated rollout and rollback.
 - **Observability** provides metrics, tracing, logging, reliability, SLOs, incidents and capacity.
 
-![Architecture](docs/figures/architecture_overview.png)
+<!-- ![Architecture](docs/figures/architecture_overview.png) (figure asset pending) -->
 *Platform architecture. **[image placeholder]***
 
 ## Business Value

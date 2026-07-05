@@ -9,12 +9,13 @@ import tempfile
 import pytest
 
 import os, sys
-sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "src"))
+_REPO_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+sys.path.insert(0, os.path.join(_REPO_ROOT, "src"))
 
 from observability.production_readiness import ProductionReadiness, create_production_readiness  # noqa: E402
 from observability.observability_models import Clock, ReadinessLevel  # noqa: E402
 
-REPO_ROOT = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+REPO_ROOT = _REPO_ROOT
 
 
 def write(path, content=""):

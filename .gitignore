@@ -39,8 +39,18 @@ runs/
 wandb/
 mlruns/
 
+# Tool caches
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+
+# Editor temp files
+tempCodeRunnerFile.py
+
 # OS / editor
 .DS_Store
+Thumbs.db
+desktop.ini
 .idea/
 .vscode/
 
