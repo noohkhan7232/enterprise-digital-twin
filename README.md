@@ -1,5 +1,7 @@
 <div align="center">
 
+<img src="docs/assets/github-social-preview.png" alt="Enterprise Digital Twin & Decision Intelligence Platform" width="100%" />
+
 # Enterprise Digital Twin & Decision Intelligence Platform
 
 **Many industrial-AI capabilities, operated as one coherent, governable, observable system.**
