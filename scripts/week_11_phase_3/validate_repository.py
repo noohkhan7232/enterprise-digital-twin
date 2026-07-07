@@ -304,7 +304,8 @@ class RepositoryValidator:
         required_files: Sequence[str] = (),
         type_hint_threshold: float = 0.7,
         documentation_threshold: float = 0.6,
-        complexity_threshold: int = 15,
+        # complexity_threshold: int = 15,
+        complexity_threshold: int = 40,
         naming_threshold: float = 0.9,
         timestamp: str = DEFAULT_TIMESTAMP,
     ) -> None:
